@@ -1,0 +1,150 @@
+@font-face {
+	src: url("fonts/OfficinaSansITC-Book.woff") format('woff');
+	font-family: "OfficinaSansITC";
+	font-weight: 100;
+}
+
+@font-face {
+	src: url("fonts/OfficinaSansITC-Medium.woff") format('woff');
+	font-family: "OfficinaSansITC";
+	font-weight: 500;
+}
+
+@font-face {
+	src: url("fonts/OfficinaSansITC-Bold.woff") format('woff');
+	font-family: "OfficinaSansITC";
+	font-weight: 600;
+}
+
+@font-face {
+	src: url("HelveticaNeue-Bold.woff") format('woff');
+	font-family: "Helvetiva Neue";
+	font-weight: 600;
+}
+
+body {
+	font-family: 'OfficinaSansITC';
+	font-weight: 100;
+	font-size: 18px;
+	background-color: #fff;
+	color: #000;
+}
+
+table.abfahrten {
+	border-collapse: collapse;
+	text-align: left;
+	table-layout: fixed;
+	width: 100%;
+}
+
+table.abfahrten col, table.abfahrten tr {
+	border-color: #0e3a7e;
+	border-width: .15em;
+}
+
+table.abfahrten tbody tr:nth-child(2n) {
+	background-color: #cbdbfe;
+}
+
+table.abfahrten tbody tr:last-child {
+	border-bottom-style: solid;
+}
+
+table.abfahrten col.haltestelle {
+	width: 12em;
+}
+
+table.abfahrten col.linie {
+	width: 2em;
+}
+
+table.abfahrten col.richtung {
+	width: 14em;
+}
+
+table.abfahrten col.haltestelle, table.abfahrten col.abfahrtszeiten {
+	border-style: none solid;
+}
+
+table.abfahrten th {
+	font-weight: 600;
+}
+
+table.abfahrten thead {
+	font-weight: 500;
+	background-color: #0e3a7e;
+	color: white;
+}
+
+table.abfahrten td, table.abfahrten th {
+	padding: .2em .5em;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+table.abfahrten span.linie {
+	display: inline-block;
+	width: 1.5em;
+	height: 1.5em;
+	text-align: center;
+}
+
+table.abfahrten span.linie > span {
+	font-family: 'Helvetica Neue';
+	font-weight: 600;
+	position: relative;
+	top: .12em;
+}
+
+table.abfahrten span.linie[linie='4'] {
+	color: #fff;
+	background-color: #39328b;
+}
+
+table.abfahrten span.linie[linie='13'] {
+	color: #000;
+	background-color: #fecd20;
+}
+
+table.abfahrten span.linie[linie='17'] {
+	color: #fff;
+	background-color: #8f125c;
+}
+
+table.abfahrten span.linie[linie='32'] {
+	color: #000;
+	background-color: #cb9bc7;
+}
+
+table.abfahrten span.linie[linie='33'] {
+	color: #000;
+	background-color: #dedb93;
+}
+
+table.abfahrten span.linie[linie='46'] {
+	color: #000;
+	background-color: #b4d997;
+}
+
+table.abfahrten span.linie[linie='72'] {
+	color: #000;
+	background-color: #c59083;
+}
+
+table.abfahrten span.fahrplan:nth-child(n+2):before {
+	content: ', ';
+}
+
+table.abfahrten span.verspätung {
+	font-weight: 500;
+	font-size: 0.8em;
+	color: #c70900;
+}
+
+table.abfahrten span.verspätung:before {
+	content: ' +';
+}
+
+table.abfahrten span.verspätung:after {
+	content: '';
+}
