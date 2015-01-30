@@ -202,7 +202,7 @@ $(function () {
 		processQueue();
 	}
 	
-	var startStationBoardRequest = function (stationID) {
+	var updateStationBoardForStation = function (stationID, success, failure) {
 		var url = 'http://online.fahrplan.zvv.ch/bin/stboard.exe/dl'
 		
 		var data = {
@@ -220,14 +220,32 @@ $(function () {
 				dataByStationID[stationID] = window.journeysObj;
 				
 				updateTable();
+				success();
 			},
 			function (error) {
 				console.log(['Loading data failed.', url, x]);
+				failure();
 			});
 	}
 	
 	// Fernverkehr: '8503020', '8503015'
 	var stationIDs = ['8580522', '8591323', '8591437'];
 	
-	stationIDs.map(startStationBoardRequest);
+	var refreshInterval = 20000;
+	
+	stationIDs.map(
+		function (stationID) {
+			var scheduleRefresh = function () {
+				window.setTimeout(refresh, refreshInterval);
+			}
+			
+			var refresh = function () {
+				updateStationBoardForStation(
+					stationID,
+					scheduleRefresh,
+					scheduleRefresh);
+			}
+			
+			refresh();
+		});
 });
