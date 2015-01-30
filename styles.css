@@ -136,6 +136,11 @@ table.abfahrten span.linie[linie='72'] {
 	background-color: #c89284;
 }
 
+table.abfahrten span.linie[linie='69'] {
+	color: black;
+	background-color: #64b0e4;
+}
+
 table.abfahrten span.linie[linie^='N'] {
 	color: #fff325;
 	background-color: black;
