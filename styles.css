@@ -1,24 +1,24 @@
 @font-face {
-	src: url("fonts/OfficinaSansITC-Book.woff") format('woff');
-	font-family: "OfficinaSansITC";
+	src: url('fonts/OfficinaSansITC-Book.woff') format('woff');
+	font-family: 'OfficinaSansITC';
 	font-weight: 100;
 }
 
 @font-face {
-	src: url("fonts/OfficinaSansITC-Medium.woff") format('woff');
-	font-family: "OfficinaSansITC";
+	src: url('fonts/OfficinaSansITC-Medium.woff') format('woff');
+	font-family: 'OfficinaSansITC';
 	font-weight: 500;
 }
 
 @font-face {
-	src: url("fonts/OfficinaSansITC-Bold.woff") format('woff');
-	font-family: "OfficinaSansITC";
+	src: url('fonts/OfficinaSansITC-Bold.woff') format('woff');
+	font-family: 'OfficinaSansITC';
 	font-weight: 600;
 }
 
 @font-face {
-	src: url("HelveticaNeue-Bold.woff") format('woff');
-	font-family: "Helvetiva Neue";
+	src: url('HelveticaNeue-Bold.woff') format('woff');
+	font-family: 'Helvetiva Neue';
 	font-weight: 600;
 }
 
@@ -26,8 +26,8 @@ body {
 	font-family: 'OfficinaSansITC';
 	font-weight: 100;
 	font-size: 18px;
-	background-color: #fff;
-	color: #000;
+	background-color: white;
+	color: black;
 }
 
 table.abfahrten {
@@ -97,43 +97,48 @@ table.abfahrten span.linie > span {
 }
 
 table.abfahrten span.linie[linie='4'] {
-	color: #fff;
+	color: white;
 	background-color: #39328b;
 }
 
 table.abfahrten span.linie[linie='13'] {
-	color: #000;
+	color: black;
 	background-color: #fecd20;
 }
 
 table.abfahrten span.linie[linie='17'] {
-	color: #fff;
+	color: white;
 	background-color: #8f125c;
 }
 
 table.abfahrten span.linie[linie='32'] {
-	color: #000;
+	color: black;
 	background-color: #cb9bc7;
 }
 
 table.abfahrten span.linie[linie='33'] {
-	color: #000;
+	color: black;
 	background-color: #dedb93;
 }
 
 table.abfahrten span.linie[linie='34'] {
-	color: #000;
+	color: black;
 	background-color: #64b0e4;
 }
 
 table.abfahrten span.linie[linie='46'] {
-	color: #000;
+	color: black;
 	background-color: #b4d997;
 }
 
 table.abfahrten span.linie[linie='72'] {
-	color: #000;
+	color: black;
 	background-color: #c89284;
+}
+
+table.abfahrten span.linie[linie^='N'] {
+	color: #fff325;
+	background-color: black;
 }
 
 table.abfahrten span.fahrplan:nth-child(n+2):before {
@@ -148,8 +153,4 @@ table.abfahrten span.verspätung {
 
 table.abfahrten span.verspätung:before {
 	content: ' +';
-}
-
-table.abfahrten span.verspätung:after {
-	content: '';
 }
