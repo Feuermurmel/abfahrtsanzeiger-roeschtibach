@@ -63,11 +63,11 @@ $(function () {
 						}
 						
 						var departure = {
-							"station": data.stationName,
-							"product": departureData.pr,
-							"direction": departureData.st,
-							"time": departureData.ti,
-							"delay": delay };
+							'station': data.stationName,
+							'product': departureData.pr,
+							'direction': departureData.st,
+							'time': departureData.ti,
+							'delay': delay };
 						
 						computeIfAbsent(
 							computeIfAbsent(
@@ -137,31 +137,97 @@ $(function () {
 		$('table.abfahrten tbody').empty().append(rowElements);
 	};
 	
-	var startStationBoardRequest = function (stationID) {
-		$.ajax({ 
-			"url": 'http://online.fahrplan.zvv.ch/bin/stboard.exe/dl',
-			"data": {
-				"L": "vs_stbzvv",
-				"input": stationID,
-				"boardType": "dep",
-				"start": "yes",
-				"requestType": "0"
-			},
-			"success": function (data) {
-				// JSON.parse() in WebKit seems to randomly throw parse errors when running it on a valid document.
-				parsedData = JSON2.parse(data.replace(/^journeysObj = /, ''));
+	var loadScript = function (url, data, success, failure) {
+		var scriptElement = $(document.createElement('script'));
+		
+		$('head').append(scriptElement);
+		
+		var cleanup = function () {
+			scriptElement.remove();
+		}
+		
+		scriptElement.on(
+			'load',
+			function () {
+				cleanup();
+				success();
+			});
+		
+		scriptElement.on(
+			'error',
+			function (error) {
+				cleanup();
+				failure(error);
+			});
+		
+		scriptElement.attr('type', 'text/javascript');
+		scriptElement.attr('src', url + '?' + $.param(data));
+	}
+	
+	var requestQueue = [];
+	var requestRunning = false;
+	
+	var queueRequest = function (url, data, success, failure) {
+		var processQueue = function () {
+			if (!requestRunning) {
+				var nextRequest = requestQueue.shift();
 				
-				dataByStationID[stationID] = parsedData;
+				if (nextRequest != null) {
+					requestRunning = true;
+					
+					nextRequest();
+				}
+			}
+		}
+		
+		requestQueue.push(
+			function () {
+				loadScript(
+					url,
+					data,
+					function () {
+						success();
+						
+						requestRunning = false;
+						processQueue();
+					},
+					function (error) {
+						failure(error);
+						
+						requestRunning = false;
+						processQueue();
+					});
+			});
+		
+		processQueue();
+	}
+	
+	var startStationBoardRequest = function (stationID) {
+		var url = 'http://online.fahrplan.zvv.ch/bin/stboard.exe/dl'
+		
+		var data = {
+			'L': 'vs_stbzvv',
+			'input': stationID,
+			'boardType': 'dep',
+			'start': 'yes',
+			'requestType': '0',
+			'nocache': new Date().getTime() };
+		
+		queueRequest(
+			url,
+			data,
+			function () {
+				dataByStationID[stationID] = window.journeysObj;
 				
 				updateTable();
 			},
-			"error": function (jqXHR, textStatus, error) {
-				console.log(error);
-			} });
-		}
+			function (error) {
+				console.log(['Loading data failed.', url, x]);
+			});
+	}
 	
-	// Fernverkehr: "8503020", "8503015"
-	var stationIDs = ["8580522", "8591323", "8591437"];
+	// Fernverkehr: '8503020', '8503015'
+	var stationIDs = ['8580522', '8591323', '8591437'];
 	
 	stationIDs.map(startStationBoardRequest);
 });
