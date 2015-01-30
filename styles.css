@@ -51,7 +51,7 @@ table.abfahrten tbody tr:last-child {
 }
 
 table.abfahrten col.haltestelle {
-	width: 12em;
+	width: 10.5em;
 }
 
 table.abfahrten col.linie {
@@ -59,7 +59,7 @@ table.abfahrten col.linie {
 }
 
 table.abfahrten col.richtung {
-	width: 14em;
+	width: 12em;
 }
 
 table.abfahrten col.haltestelle, table.abfahrten col.abfahrtszeiten {

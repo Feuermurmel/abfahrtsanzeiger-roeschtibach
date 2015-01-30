@@ -34,6 +34,18 @@ $(function () {
 		return value;
 	}
 	
+	var stationNameReplacemenets = [
+		[/^Zürich, /, '']]
+	
+	var fixStationName = function (stationName) {
+		stationNameReplacemenets.map(
+			function (x) {
+				stationName = stationName.replace(x[0], x[1]);
+			});
+		
+		return stationName;
+	}
+	
 	var dataByStationID = { };
 	
 	var updateTable = function () {
@@ -77,7 +89,7 @@ $(function () {
 			
 			if (currentStation != station) {
 				currentStation = station;
-				stationText = station;
+				stationText = fixStationName(station);
 			}
 			
 			var productElement = createElement('span', 'linie', [createElement('span', '', product)]);
@@ -100,7 +112,7 @@ $(function () {
 			var cellElements = [
 				createElement('th', '', [stationText]),
 				createElement('td', '', [productElement]),
-				createElement('td', '', [direction]),
+				createElement('td', '', [fixStationName(direction)]),
 				createElement('td', '', departureElements)]
 			
 			return createElement('tr', '', cellElements);
