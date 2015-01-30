@@ -34,7 +34,6 @@ $(function () {
 		return value;
 	}
 	
-	var stationIDs = ["8580522"]
 	var dataByStationID = { };
 	
 	var updateTable = function () {
@@ -123,8 +122,6 @@ $(function () {
 					});
 			});
 		
-		console.log(rowElements);
-		
 		$('table.abfahrten tbody').empty().append(rowElements);
 	};
 	
@@ -151,5 +148,8 @@ $(function () {
 			} });
 		}
 	
-	startStationBoardRequest(stationIDs[0]);
+	// Fernverkehr: "8503020", "8503015"
+	var stationIDs = ["8580522", "8591323", "8591437"];
+	
+	stationIDs.map(startStationBoardRequest);
 });
