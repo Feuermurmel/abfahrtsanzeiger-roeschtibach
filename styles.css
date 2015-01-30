@@ -121,6 +121,11 @@ table.abfahrten span.linie[linie='33'] {
 	background-color: #dedb93;
 }
 
+table.abfahrten span.linie[linie='34'] {
+	color: #000;
+	background-color: #64b0e4;
+}
+
 table.abfahrten span.linie[linie='46'] {
 	color: #000;
 	background-color: #b4d997;
@@ -128,7 +133,7 @@ table.abfahrten span.linie[linie='46'] {
 
 table.abfahrten span.linie[linie='72'] {
 	color: #000;
-	background-color: #c59083;
+	background-color: #c89284;
 }
 
 table.abfahrten span.fahrplan:nth-child(n+2):before {
