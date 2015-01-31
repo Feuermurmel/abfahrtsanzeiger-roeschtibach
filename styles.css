@@ -59,7 +59,7 @@ table.abfahrten col.linie {
 }
 
 table.abfahrten col.richtung {
-	width: 12em;
+	width: 13.5em;
 }
 
 table.abfahrten col.haltestelle, table.abfahrten col.abfahrtszeiten {
@@ -147,7 +147,7 @@ table.abfahrten span.linie[linie='69'] {
 	background-color: #64b0e4;
 }
 
-table.abfahrten span.linie[linie^='N'] {
+table.abfahrten span.linie[linie^='N'], table.abfahrten span.linie[linie^='SN'] {
 	color: #fff325;
 	background-color: black;
 }
