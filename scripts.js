@@ -33,18 +33,22 @@ $(function () {
 		
 		return value;
 	}
-	
-	var stationNameReplacemenets = [
-		[/^Zürich, /, '']]
-	
-	var fixStationName = function (stationName) {
-		stationNameReplacemenets.map(
-			function (x) {
-				stationName = stationName.replace(x[0], x[1]);
-			});
-		
-		return stationName;
+	var createReplacementFunction = function (replacements) {
+		return function (name) {
+			replacements.map(
+				function (x) {
+					name = name.replace(x[0], x[1]);
+				});
+			
+			return name;
+		}
 	}
+	
+	var fixStationName = createReplacementFunction(
+		[[/^Zürich, /, '']])
+	
+	var fixProductName = createReplacementFunction(
+		[[/ +/, '']])
 	
 	var dataByStationID = { };
 	
@@ -92,7 +96,7 @@ $(function () {
 				stationText = fixStationName(station);
 			}
 			
-			var productElement = createElement('span', 'linie', [createElement('span', '', product)]);
+			var productElement = createElement('span', 'linie', [createElement('span', '', fixProductName(product))]);
 			
 			productElement.attr('linie', product);
 			
