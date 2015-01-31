@@ -221,13 +221,19 @@ $(function () {
 			url,
 			data,
 			function () {
-				dataByStationID[stationID] = window.journeysObj;
-				
-				updateTable();
-				success();
+				if (window.journeysObj == null || window.journeysObj.journey == null) {
+					console.log(['Empty data was loaded.', stationID]);
+					failure();
+				} else {
+					dataByStationID[stationID] = window.journeysObj;
+					window.journeysObj = null;
+					
+					updateTable();
+					success();
+				}
 			},
 			function (error) {
-				console.log(['Loading data failed.', url, x]);
+				console.log(['Loading data failed.', stationID, error]);
 				failure();
 			});
 	}
