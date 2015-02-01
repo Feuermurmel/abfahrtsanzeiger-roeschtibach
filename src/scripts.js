@@ -278,7 +278,7 @@ $(function () {
 	
 	var updateClock = function () {
 		var now = new Date();
-		var time = formatNumber(now.getFullYear(), 4) + '-' + formatNumber(now.getMonth(), 2) + '-' + formatNumber(now.getDay(), 2) + ' ' + formatNumber(now.getHours(), 2) + ':' + formatNumber(now.getMinutes(), 2) + ':' + formatNumber(now.getSeconds(), 2);
+		var time = formatNumber(now.getFullYear(), 4) + '-' + formatNumber(now.getMonth() + 1, 2) + '-' + formatNumber(now.getDate(), 2) + ' ' + formatNumber(now.getHours(), 2) + ':' + formatNumber(now.getMinutes(), 2) + ':' + formatNumber(now.getSeconds(), 2);
 		
 		$('#footer span.right').text('Aktuelle Zeit: ' + time);
 		
