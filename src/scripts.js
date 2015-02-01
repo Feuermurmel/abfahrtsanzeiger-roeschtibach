@@ -138,7 +138,7 @@ $(function () {
 					});
 			});
 		
-		$('table.abfahrten tbody').empty().append(rowElements);
+		$('#abfahrten tbody').empty().append(rowElements);
 	};
 	
 	var loadScript = function (url, data, success, failure) {
@@ -258,4 +258,25 @@ $(function () {
 			
 			refresh();
 		});
+	
+	var updateClock = function () {
+		var formatNumber = function (x, width) {
+			var res = '' + x;
+			
+			while (res.length < width) {
+				res = '0' + res;
+			}
+			
+			return res;
+		}
+		
+		var now = new Date();
+		var time = formatNumber(now.getFullYear(), 4) + '-' + formatNumber(now.getMonth(), 2) + '-' + formatNumber(now.getDay(), 2) + ' ' + formatNumber(now.getHours(), 2) + ':' + formatNumber(now.getMinutes(), 2) + ':' + formatNumber(now.getSeconds(), 2);
+		
+		$('#footer span.right').text('Aktuelle Zeit: ' + time);
+		
+		window.setTimeout(updateClock, 1000 - now.getMilliseconds());
+	}
+	
+	updateClock();
 });
