@@ -33,6 +33,17 @@ $(function () {
 		
 		return value;
 	}
+	
+	var formatNumber = function (x, width) {
+		var res = '' + x;
+		
+		while (res.length < width) {
+			res = '0' + res;
+		}
+		
+		return res;
+	}
+	
 	var createReplacementFunction = function (replacements) {
 		return function (name) {
 			replacements.map(
@@ -66,11 +77,15 @@ $(function () {
 							delay = null;
 						}
 						
+						var dateParts = departureData.da.split('.');
+						var timeParts = departureData.ti.split(':');
+						var time = new Date(dateParts[2], dateParts[1], dateParts[0], timeParts[0], timeParts[1]);
+						
 						var departure = {
 							'station': data.stationName,
 							'product': departureData.pr,
 							'direction': departureData.st,
-							'time': [departureData.da, departureData.ti],
+							'time': time,
 							'delay': delay };
 						
 						computeIfAbsent(
@@ -104,7 +119,9 @@ $(function () {
 			
 			departures.map(
 				function (departure) {
-					departureElements.push(createElement('span', 'fahrplan', [departure.time[1]]));
+					var departureTime = formatNumber(departure.time.getHours(), 2) + ':' + formatNumber(departure.time.getMinutes(), 2);
+					
+					departureElements.push(createElement('span', 'fahrplan', [departureTime]));
 					
 					var delay = departure.delay;
 					
@@ -260,16 +277,6 @@ $(function () {
 		});
 	
 	var updateClock = function () {
-		var formatNumber = function (x, width) {
-			var res = '' + x;
-			
-			while (res.length < width) {
-				res = '0' + res;
-			}
-			
-			return res;
-		}
-		
 		var now = new Date();
 		var time = formatNumber(now.getFullYear(), 4) + '-' + formatNumber(now.getMonth(), 2) + '-' + formatNumber(now.getDay(), 2) + ' ' + formatNumber(now.getHours(), 2) + ':' + formatNumber(now.getMinutes(), 2) + ':' + formatNumber(now.getSeconds(), 2);
 		
