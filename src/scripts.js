@@ -1,13 +1,22 @@
 $(function () {
-	var concat = function (arrays) {
-		var res = [];
+	var sortBy = function (list, keyFunctions) {
+		var res = list.slice();
 		
-		arrays.map(
-			function (x) {
-				x.map(
-					function (y) {
-						res.push(y);
-					});
+		res.sort(
+			function (a, b) {
+				for (var i = 0; i < keyFunctions.length; i += 1) {
+					var keyFunction = keyFunctions[i]
+					var aKey = keyFunction(a);
+					var bKey = keyFunction(b);
+					
+					if (aKey < bKey) {
+						return -1;
+					} else if (aKey > bKey) {
+						return 1;
+					}
+				}
+				
+				return 0;
 			});
 		
 		return res;
@@ -66,6 +75,7 @@ $(function () {
 	var updateTable = function () {
 		var departuresByStationProductDirection = { };
 		
+		// Gather departures indexed by station, product and direction.
 		$.each(
 			dataByStationID,
 			function (stationID, data) {
@@ -88,7 +98,7 @@ $(function () {
 							'time': time,
 							'delay': delay };
 						
-						computeIfAbsent(
+						var departuresList = computeIfAbsent(
 							computeIfAbsent(
 								computeIfAbsent(
 									departuresByStationProductDirection,
@@ -97,7 +107,9 @@ $(function () {
 								departure.product,
 								function () { return { }; }),
 							departure.direction,
-							function () { return []; }).push(departure);
+							function () { return []; });
+						
+						departuresList.push(departure);
 					});
 			});
 		
@@ -144,14 +156,32 @@ $(function () {
 		$.each(
 			departuresByStationProductDirection,
 			function (station, departuresByProductDirection) {
+				var departuresAtStation = [];
+				
+				// Gather all groups of departures at this station in a flat list.
 				$.each(
 					departuresByProductDirection,
 					function (product, departuresByDirection) {
 						$.each(
 							departuresByDirection,
 							function (direction, departures) {
-								rowElements.push(createRowElement(station, product, direction, departures))
+								departuresAtStation.push(departures)
 							});
+					});
+				
+				departuresAtStation = sortBy(
+					departuresAtStation,
+					[
+						function (x) { return x[0].time; },
+						function (x) { return x[0].product; },
+						function (x) { return x[0].direction; }]);
+				
+				departuresAtStation.map(
+					function (departures) {
+						var product = departures[0].product;
+						var direction = departures[0].direction;
+						
+						rowElements.push(createRowElement(station, product, direction, departures));
 					});
 			});
 		
