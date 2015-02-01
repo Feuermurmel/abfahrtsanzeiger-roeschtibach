@@ -70,7 +70,7 @@ $(function () {
 							'station': data.stationName,
 							'product': departureData.pr,
 							'direction': departureData.st,
-							'time': departureData.ti,
+							'time': [departureData.da, departureData.ti],
 							'delay': delay };
 						
 						computeIfAbsent(
@@ -104,7 +104,7 @@ $(function () {
 			
 			departures.map(
 				function (departure) {
-					departureElements.push(createElement('span', 'fahrplan', [departure.time]));
+					departureElements.push(createElement('span', 'fahrplan', [departure.time[1]]));
 					
 					var delay = departure.delay;
 					
