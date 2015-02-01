@@ -36,133 +36,135 @@ table.abfahrten {
 	text-align: left;
 	table-layout: fixed;
 	width: 100%;
-}
-
-table.abfahrten col, table.abfahrten tr {
-	border-color: #0e3a7e;
-	border-width: .15em;
-}
-
-table.abfahrten tbody tr:nth-child(2n) {
-	background-color: #cbdbfe;
-}
-
-table.abfahrten tbody tr:last-child {
-	border-bottom-style: solid;
-}
-
-table.abfahrten col.haltestelle {
-	width: 10.5em;
-}
-
-table.abfahrten col.linie {
-	width: 3.2em;
-}
-
-table.abfahrten col.richtung {
-	width: 13.5em;
-}
-
-table.abfahrten col.haltestelle, table.abfahrten col.abfahrtszeiten {
-	border-style: none solid;
-}
-
-table.abfahrten th {
-	font-weight: 600;
-}
-
-table.abfahrten thead {
-	font-weight: 500;
-	background-color: #0e3a7e;
-	color: white;
-}
-
-table.abfahrten td, table.abfahrten th {
-	padding: .2em .5em;
-	overflow: hidden;
-	white-space: nowrap;
-}
-
-table.abfahrten td:nth-child(2) {
-	text-align: right;
-	padding-right: .2em;
-}
-
-table.abfahrten span.linie {
-	display: inline-block;
-	min-width: 1.5em;
-	height: 1.5em;
-	text-align: center;
-}
-
-table.abfahrten span.linie > span {
-	font-family: 'Helvetica Neue';
-	font-weight: 600;
-	padding: 0em .1em;
-	position: relative;
-	top: .12em;
-}
-
-table.abfahrten span.linie[linie='4'] {
-	color: white;
-	background-color: #39328b;
-}
-
-table.abfahrten span.linie[linie='13'] {
-	color: black;
-	background-color: #fecd20;
-}
-
-table.abfahrten span.linie[linie='17'] {
-	color: white;
-	background-color: #8f125c;
-}
-
-table.abfahrten span.linie[linie='32'] {
-	color: black;
-	background-color: #cb9bc7;
-}
-
-table.abfahrten span.linie[linie='33'] {
-	color: black;
-	background-color: #dedb93;
-}
-
-table.abfahrten span.linie[linie='34'] {
-	color: black;
-	background-color: #64b0e4;
-}
-
-table.abfahrten span.linie[linie='46'] {
-	color: black;
-	background-color: #b4d997;
-}
-
-table.abfahrten span.linie[linie='72'] {
-	color: black;
-	background-color: #c89284;
-}
-
-table.abfahrten span.linie[linie='69'] {
-	color: black;
-	background-color: #64b0e4;
-}
-
-table.abfahrten span.linie[linie^='N'], table.abfahrten span.linie[linie^='SN'] {
-	color: #fff325;
-	background-color: black;
-}
-
-table.abfahrten span.fahrplan:nth-child(n+2):before {
-	content: ', ';
-}
-
-table.abfahrten span.verspätung {
-	font-weight: 500;
-	font-size: 0.8em;
-	color: #c70900;
-}
-
-table.abfahrten span.verspätung:before {
-	content: ' +';
+	
+	thead {
+		font-weight: 500;
+		background-color: #0e3a7e;
+		color: white;
+	}
+	
+	tbody {
+		tr:nth-child(2n) {
+			background-color: #cbdbfe;
+		}
+		
+		tr:last-child {
+			border-bottom-style: solid;
+		}
+	}
+	
+	col.haltestelle {
+		width: 10.5em;
+	}
+	
+	col.linie {
+		width: 3.2em;
+	}
+	
+	col.richtung {
+		width: 13.5em;
+	}
+	
+	col.haltestelle, col.abfahrtszeiten {
+		border-style: none solid;
+	}
+	
+	th {
+		font-weight: 600;
+	}
+	
+	td, th {
+		padding: .2em .5em;
+		overflow: hidden;
+		white-space: nowrap;
+	}
+	
+	td:nth-child(2) {
+		text-align: right;
+		padding-right: .2em;
+	}
+	
+	col, tr {
+		border-color: #0e3a7e;
+		border-width: .15em;
+	}
+	
+	span.linie {
+		display: inline-block;
+		min-width: 1.5em;
+		height: 1.5em;
+		text-align: center;
+		
+		& > span {
+			font-family: 'Helvetica Neue';
+			font-weight: 600;
+			padding: 0em .1em;
+			position: relative;
+			top: .12em;
+		}
+		
+		&[linie='4'] {
+			color: white;
+			background-color: #39328b;
+		}
+		
+		&[linie='13'] {
+			color: black;
+   		background-color: #fecd20;
+		}
+		
+		&[linie='17'] {
+			color: white;
+   		background-color: #8f125c;
+		}
+		
+		&[linie='32'] {
+			color: black;
+   		background-color: #cb9bc7;
+		}
+		
+		&[linie='33'] {
+			color: black;
+   		background-color: #dedb93;
+		}
+		
+		&[linie='34'] {
+			color: black;
+   		background-color: #64b0e4;
+		}
+		
+		&[linie='46'] {
+			color: black;
+   		background-color: #b4d997;
+		}
+		
+		&[linie='72'] {
+			color: black;
+   		background-color: #c89284;
+		}
+		
+		&[linie='69'] {
+			color: black;
+			background-color: #64b0e4;
+		}
+		
+		&[linie^='N'], &[linie^='SN'] {
+			color: #fff325;
+			background-color: black;
+		}
+	}
+	
+	span.fahrplan:nth-child(n+2):before {
+		content: ', ';
+	}
+	
+	span.verspätung {
+		font-weight: 500;
+		font-size: 0.8em;
+		color: #c70900;
+	}
+	
+	span.verspätung:before {
+		content: ' +';
+	}
 }
