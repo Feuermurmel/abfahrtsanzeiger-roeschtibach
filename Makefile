@@ -1,11 +1,9 @@
-COMPILED_JS_FILES := $(patsubst src/%.coffee,out/%.js,$(shell find src -name '*.coffee'))
 COMPILED_CSS_FILES := $(patsubst src/%.less,out/%.css,$(shell find src -name '*.less'))
-COPIED_FILES := $(filter-out $(COMPILED_JS_FILES) $(COMPILED_CSS_FILES),$(patsubst src/%,out/%,$(shell find src -type f -not -name '.*')))
-OUT_FILES := $(COMPILED_JS_FILES) $(COMPILED_CSS_FILES) $(COPIED_FILES)
+COPIED_FILES := $(patsubst src/%,out/%,$(shell find src -type f -not -name '.*'))
 
 .PHONY: clean all deploy
 
-all: $(OUT_FILES)
+all: $(COMPILED_CSS_FILES) $(COPIED_FILES)
 
 clean:
 	rm -rf out deploy
@@ -24,17 +22,9 @@ deploy:
 	git fetch -f deploy/out HEAD:gh-pages
 	git push -f origin gh-pages
 
-out/%.js: src/%.coffee
-	mkdir -p $$(dirname $@)
-	cp $< $@.coffee
-	coffee -cm $@.coffee
-	mv $@.js $@
-	mv $@.js.map $.map
-
-out/%.css: src/%.less
-	mkdir -p $$(dirname $@)
+out/%.css: out/%.less
 	lessc --source-map $< $@
 
 $(COPIED_FILES): out/%: src/%
-	mkdir -p $$(dirname $@)
+	@ mkdir -p $$(dirname $@)
 	cp $< $@
