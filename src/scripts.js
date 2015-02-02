@@ -53,6 +53,65 @@ $(function () {
 		return res;
 	}
 	
+	var formatDate = function (date, parts) {
+		if (!(date instanceof Date)) {
+			date = new Date(date);
+		}
+		
+		var res = '';
+		
+		var resultParts = parts.split('').map(
+			function (x) {
+				if (x == 'y') {
+					return formatNumber(date.getFullYear(), 4);
+				} else if (x == 'm') {
+					return formatNumber(date.getMonth() + 1, 2);
+				} else if (x == 'd') {
+					return formatNumber(date.getDate(), 2);
+				} else if (x == 'H') {
+					return formatNumber(date.getHours(), 2);
+				} else if (x == 'M') {
+					return formatNumber(date.getMinutes(), 2);
+				} else if (x == 'S') {
+					return formatNumber(date.getSeconds(), 2);
+				} else {
+					return x;
+				}
+			});
+		
+		return resultParts.join('');
+	}
+	
+	var scheduleAt = function (date, action) {
+		if (date instanceof Date) {
+			date = date.getTime();
+		}
+		
+		var now = new Date().getTime();
+		var delay = date - now;
+		
+		if (delay < 0) {
+			delay = 0;
+		}
+		
+		setTimeout(action, delay);
+	}
+	
+	var scheduleOnInterval = function (interval, action) {
+		var now = new Date().getTime();
+		
+		var schedule = function (time) {
+			scheduleAt(
+				time,
+				function () {
+					schedule(time + interval);
+					action();
+				});
+		}
+		
+		schedule(now - now % interval);
+	}
+	
 	var createReplacementFunction = function (replacements) {
 		return function (name) {
 			replacements.map(
@@ -83,15 +142,17 @@ $(function () {
 			function (stationID, data) {
 				data.journey.map(
 					function (departureData) {
-						var delay = departureData.rt.dlm;
+						var delayString = departureData.rt.dlm;
 						
-						if (delay == '0') {
-							delay = null;
+						if (delayString == null) {
+							delayString = '0';
 						}
+						
+						var delay = parseInt(delayString) * 60 * 1000;
 						
 						var dateParts = departureData.da.split('.');
 						var timeParts = departureData.ti.split(':');
-						var time = new Date(dateParts[2], dateParts[1], dateParts[0], timeParts[0], timeParts[1]);
+						var time = new Date(dateParts[2], dateParts[1], dateParts[0], timeParts[0], timeParts[1]).getTime();
 						
 						var departure = {
 							'station': data.stationName,
@@ -129,26 +190,25 @@ $(function () {
 			
 			productElement.attr('linie', product);
 			
-			var departureElements = [];
-			
-			departures.map(
+			var departureElements = departures.map(
 				function (departure) {
-					var departureTime = formatNumber(departure.time.getHours(), 2) + ':' + formatNumber(departure.time.getMinutes(), 2);
-					
-					departureElements.push(createElement('span', 'fahrplan', [departureTime]));
-					
 					var delay = departure.delay;
+				//	var estimatedTime = formatDate()
 					
-					if (delay != null) {
-						departureElements.push(createElement('span', 'verspätung', [delay]))
+					var abfahrtElements = [formatDate(departure.time, 'H:M')];
+					
+					if (delay > 0) {
+						abfahrtElements.push(createElement('span', 'verspätung', [Math.floor(delay / (60 * 1000))]));
 					}
+					
+					return createElement('span', 'abfahrt', abfahrtElements);
 				});
 			
 			var cellElements = [
 				createElement('th', '', [stationText]),
 				createElement('td', '', [productElement]),
 				createElement('td', '', [fixStationName(direction)]),
-				createElement('td', '', departureElements)]
+				createElement('td', '', departureElements)];
 			
 			return createElement('tr', '', cellElements);
 		}
