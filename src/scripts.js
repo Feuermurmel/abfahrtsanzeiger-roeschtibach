@@ -158,8 +158,8 @@ $(function () {
 							'station': data.stationName,
 							'product': departureData.pr,
 							'direction': departureData.st,
-							'time': time,
-							'delay': delay };
+							'scheduled': time,
+							'estimated': time + delay };
 						
 						var departuresList = computeIfAbsent(
 							computeIfAbsent(
@@ -192,10 +192,8 @@ $(function () {
 			
 			var departureElements = departures.map(
 				function (departure) {
-					var delay = departure.delay;
-				//	var estimatedTime = formatDate()
-					
-					var abfahrtElements = [formatDate(departure.time, 'H:M')];
+					var delay = departure.estimated - departure.scheduled;
+					var abfahrtElements = [formatDate(departure.scheduled, 'H:M')];
 					
 					if (delay > 0) {
 						abfahrtElements.push(createElement('span', 'verspätung', [Math.floor(delay / (60 * 1000))]));
@@ -234,7 +232,7 @@ $(function () {
 				departuresAtStation = sortBy(
 					departuresAtStation,
 					[
-						function (x) { return x[0].time; },
+						function (x) { return x[0].scheduled; },
 						function (x) { return x[0].product; },
 						function (x) { return x[0].direction; }]);
 				
@@ -347,7 +345,6 @@ $(function () {
 			});
 	}
 	
-	// Fernverkehr: '8503020', '8503015'
 	var stationIDs = ['8580522', '8591323', '8591437', '8503020', '8503015'];
 	
 	var refreshInterval = 20000;
