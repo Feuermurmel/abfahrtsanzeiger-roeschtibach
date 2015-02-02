@@ -159,7 +159,7 @@ body {
 		}
 	}
 	
-	span.fahrplan:nth-child(n+2):before {
+	span.abfahrt:nth-child(n+2):before {
 		content: ', ';
 	}
 	
@@ -172,6 +172,10 @@ body {
 	span.verspätung:before {
 		content: ' +';
 	}
+}
+
+body.blink-on #abfahrten span.abfahrt:knapp, body #abfahrten span.abfahrt:verpasst {
+	opacity: .5;
 }
 
 #footer {

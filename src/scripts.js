@@ -368,14 +368,17 @@ $(function () {
 			refresh();
 		});
 	
-	var updateClock = function () {
-		var now = new Date();
-		var time = formatNumber(now.getFullYear(), 4) + '-' + formatNumber(now.getMonth() + 1, 2) + '-' + formatNumber(now.getDate(), 2) + ' ' + formatNumber(now.getHours(), 2) + ':' + formatNumber(now.getMinutes(), 2) + ':' + formatNumber(now.getSeconds(), 2);
-		
-		$('#footer span.right').text('Aktuelle Zeit: ' + time);
-		
-		window.setTimeout(updateClock, 1000 - now.getMilliseconds());
-	}
+	// Update clock.
+	scheduleOnInterval(
+		1000,
+		function () {
+			$('#current-time').text(formatDate(new Date(), 'y-m-d H:M:S'));
+		});
 	
-	updateClock();
+	// Toggle blink class.
+	scheduleOnInterval(
+		800,
+		function () {
+			$('body').toggleClass('blink-on');
+		});
 });
