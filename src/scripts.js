@@ -87,14 +87,20 @@ $(function () {
 			date = date.getTime();
 		}
 		
-		var now = new Date().getTime();
-		var delay = date - now;
+		var reSchedule = function () {
+			var now = new Date().getTime();
+			var delay = date - now;
+			
+			// WebKit os OS X seems to notoriously schedule tasks too early.
+			if (delay > 0) {
+				setTimeout(reSchedule, delay);
+			} else {
+				action();
+			}
+		};
 		
-		if (delay < 0) {
-			delay = 0;
-		}
-		
-		setTimeout(action, delay);
+		// The task needs to be scheduled at least once to prevent it running before this function returns.
+		setTimeout(reSchedule, 0);
 	}
 	
 	var scheduleOnInterval = function (interval, action) {
@@ -152,14 +158,21 @@ $(function () {
 						
 						var dateParts = departureData.da.split('.');
 						var timeParts = departureData.ti.split(':');
-						var time = new Date(dateParts[2], dateParts[1], dateParts[0], timeParts[0], timeParts[1]).getTime();
+						var time = new Date(
+							parseInt(dateParts[2]) + 2000,
+							parseInt(dateParts[1]) - 1,
+							parseInt(dateParts[0]),
+							parseInt(timeParts[0]),
+							parseInt(timeParts[1]));
+						
+						var scheduled = time.getTime();
 						
 						var departure = {
 							'station': data.stationName,
 							'product': departureData.pr,
 							'direction': departureData.st,
-							'scheduled': time,
-							'estimated': time + delay };
+							'scheduled': scheduled,
+							'estimated': scheduled + delay };
 						
 						var departuresList = computeIfAbsent(
 							computeIfAbsent(
@@ -194,12 +207,21 @@ $(function () {
 				function (departure) {
 					var delay = departure.estimated - departure.scheduled;
 					var abfahrtElements = [formatDate(departure.scheduled, 'H:M')];
+					var remaining = departure.estimated - new Date().getTime();
 					
 					if (delay > 0) {
 						abfahrtElements.push(createElement('span', 'verspätung', [Math.floor(delay / (60 * 1000))]));
 					}
 					
-					return createElement('span', 'abfahrt', abfahrtElements);
+					var element = createElement('span', 'abfahrt', abfahrtElements);
+					
+					if (remaining <= 2 * 60 * 1000) {
+						element.addClass('verpasst');
+					} else if (remaining <= 5 * 60 * 1000) {
+						element.addClass('knapp');
+					}
+					
+					return element;
 				});
 			
 			var cellElements = [
@@ -247,6 +269,9 @@ $(function () {
 		
 		$('#abfahrten tbody').empty().append(rowElements);
 	};
+	
+	// Run this on every full minute to update blinking tags and such.
+	scheduleOnInterval(60 * 1000, updateTable);
 	
 	var loadScript = function (url, data, success, failure) {
 		var scriptElement = $(document.createElement('script'));
