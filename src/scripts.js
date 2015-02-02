@@ -65,7 +65,9 @@ $(function () {
 	}
 	
 	var fixStationName = createReplacementFunction(
-		[[/^Zürich, /, '']])
+		[
+			[/^Zürich, /, ''],
+			[/ \(SBB\)$/, '']])
 	
 	var fixProductName = createReplacementFunction(
 		[[/ +/, '']])
@@ -286,7 +288,7 @@ $(function () {
 	}
 	
 	// Fernverkehr: '8503020', '8503015'
-	var stationIDs = ['8580522', '8591323', '8591437'];
+	var stationIDs = ['8580522', '8591323', '8591437', '8503020', '8503015'];
 	
 	var refreshInterval = 20000;
 	
