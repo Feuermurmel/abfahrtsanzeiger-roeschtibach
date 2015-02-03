@@ -17,33 +17,24 @@ stationboard = (function () {
 			}
 		}
 		
+		var wrapCompletionFunction = function (completionFunction) {
+			return function (response) {
+				setTimeout(
+					function () {
+						requestRunning = false;
+						processQueue();
+					}, 1000);
+				
+				completionFunction(response);
+			}
+		}
+		
 		requestQueue.push(
 			{
 				'url': endpoint + fragment,
 				'data': data,
-				'success':
-					function (data) {
-						try {
-							var res = JSON2.parse(data.replace(/^journeysObj = /, ''));
-						} catch (error) {
-							failure(error);
-							
-							return;
-						}
-						
-						success(res);
-						
-						requestRunning = false;
-						processQueue();
-					},
-				'failure':
-					function (error) {
-						failure(error);
-						
-						requestRunning = false;
-						processQueue();
-					}
-			});
+				'success': wrapCompletionFunction(success),
+				'failure': wrapCompletionFunction(failure) });
 		
 		processQueue();
 	}
@@ -59,7 +50,15 @@ stationboard = (function () {
 			'requestType': '0',
 			'nocache': new Date().getTime() };
 		
-		var handleSuccess = function (data) {
+		var handleSuccess = function (response) {
+			try {
+				var data = JSON2.parse(response.replace(/^journeysObj = /, ''));
+			} catch (error) {
+				failure(error);
+				
+				return;
+			}
+			
 			var departures = data.journey.map(
 				function (departureData) {
 					var delayString = departureData.rt.dlm;
@@ -82,6 +81,7 @@ stationboard = (function () {
 					var scheduled = time.getTime();
 					
 					return {
+						'trainID': departureData.trainid,
 						'station': data.stationName,
 						'product': departureData.pr,
 						'direction': departureData.st,
