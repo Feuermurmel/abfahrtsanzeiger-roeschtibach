@@ -172,9 +172,16 @@ body {
 	span.verspätung:before {
 		content: ' +';
 	}
+	
+	// For coloring according to remaining time.
+	span.abfahrt.knapp {
+		// Here we try to trick WebKit into rendering the number in their own layer, event when it should be drawn at full opacity.
+		opacity: .999999;
+	}
 }
 
-body.blink-on #abfahrten span.abfahrt.knapp, body #abfahrten span.abfahrt.verpasst {
+// For coloring according to remaining time.
+body.blink-on #abfahrten span.abfahrt.knapp, #abfahrten span.abfahrt.verpasst {
 	opacity: .5;
 }
 
