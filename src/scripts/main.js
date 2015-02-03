@@ -273,104 +273,12 @@ $(function () {
 	// Run this on every full minute to update blinking tags and such.
 	scheduleOnInterval(60 * 1000, updateTable);
 	
-	var loadScript = function (url, data, success, failure) {
-		var scriptElement = $(document.createElement('script'));
-		
-		$('head').append(scriptElement);
-		
-		var cleanup = function () {
-			scriptElement.remove();
-		}
-		
-		scriptElement.on(
-			'load',
-			function () {
-				cleanup();
-				success();
-			});
-		
-		scriptElement.on(
-			'error',
-			function (error) {
-				cleanup();
-				failure(error);
-			});
-		
-		scriptElement.attr('type', 'text/javascript');
-		scriptElement.attr('src', url + '?' + $.param(data));
-	}
-	
-	var requestQueue = [];
-	var requestRunning = false;
-	
-	var queueRequest = function (url, data, success, failure) {
-		var processQueue = function () {
-			if (!requestRunning) {
-				var nextRequest = requestQueue.shift();
-				
-				if (nextRequest != null) {
-					requestRunning = true;
-					
-					nextRequest();
-				}
-			}
-		}
-		
-		requestQueue.push(
-			function () {
-				loadScript(
-					url,
-					data,
-					function () {
-						success();
-						
-						requestRunning = false;
-						processQueue();
-					},
-					function (error) {
-						failure(error);
-						
-						requestRunning = false;
-						processQueue();
-					});
-			});
-		
-		processQueue();
-	}
-	
-	var updateStationBoardForStation = function (stationID, success, failure) {
-		var url = 'http://online.fahrplan.zvv.ch/bin/stboard.exe/dl'
-		
-		var data = {
-			'L': 'vs_stbzvv',
-			'input': stationID,
-			'boardType': 'dep',
-			'start': 'yes',
-			'requestType': '0',
-			'nocache': new Date().getTime() };
-		
-		queueRequest(
-			url,
-			data,
-			function () {
-				if (window.journeysObj == null || window.journeysObj.journey == null) {
-					console.log(['Empty data was loaded.', stationID]);
-					failure();
-				} else {
-					dataByStationID[stationID] = window.journeysObj;
-					window.journeysObj = null;
-					
-					updateTable();
-					success();
-				}
-			},
-			function (error) {
-				console.log(['Loading data failed.', stationID, error]);
-				failure();
-			});
-	}
-	
-	var stationIDs = ['8580522', '8591323', '8591437', '8503020', '8503015'];
+	var stationIDs = [
+		'Zürich, Rosengartenstrasse',
+		'Zürich, Wipkingerplatz',
+		'Zürich, Escher-Wyss-Platz',
+		'Zürich Wipkingen (SBB)',
+		'Zürich Hardbrücke (SBB)'];
 	
 	var refreshInterval = 20000;
 	
@@ -381,10 +289,18 @@ $(function () {
 			}
 			
 			var refresh = function () {
-				updateStationBoardForStation(
+				stationboard.requestDepartures(
 					stationID,
-					scheduleRefresh,
-					scheduleRefresh);
+					function (data) {
+						dataByStationID[stationID] = data;
+						
+						updateTable();
+						scheduleRefresh();
+					},
+					function (error) {
+						console.log(error);
+						scheduleRefresh();
+					});
 			}
 			
 			refresh();
