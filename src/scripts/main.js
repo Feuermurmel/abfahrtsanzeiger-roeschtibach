@@ -33,7 +33,7 @@ $(function () {
 	}
 	
 	function groupBy(list, keyFunction) {
-		var res= { };
+		var res = { };
 		
 		list.forEach(function (x) {
 			computeIfAbsent(res, keyFunction(x), function () {
@@ -62,6 +62,10 @@ $(function () {
 		});
 		
 		return res;
+	}
+	
+	function concat(list) {
+		return [].concat.apply([], list);
 	}
 	
 	var createElement = function (tag, clazz, elements) {
@@ -216,27 +220,26 @@ $(function () {
 			
 			productElement.attr('linie', product);
 			
-			var departureElements = departures.map(
-				function (data) {
-					var departure = data.departure;
-					var delay = departure.estimated - departure.scheduled;
-					var abfahrtElements = [formatDate(departure.scheduled, 'H:M')];
-					var remaining = departure.estimated - new Date().getTime();
-					
-					if (delay > 0) {
-						abfahrtElements.push(createElement('span', 'verspätung', [Math.floor(delay / (60 * 1000))]));
-					}
-					
-					var element = createElement('span', 'abfahrt', abfahrtElements);
-					
-					if (remaining <= 2 * 60 * 1000) {
-						element.addClass('verpasst');
-					} else if (remaining <= 5 * 60 * 1000) {
-						element.addClass('knapp');
-					}
-					
-					return element;
-				});
+			var departureElements = departures.map(function (data) {
+				var departure = data.departure;
+				var delay = departure.estimated - departure.scheduled;
+				var abfahrtElements = [formatDate(departure.scheduled, 'H:M')];
+				var remaining = departure.estimated - new Date().getTime();
+				
+				if (delay > 0) {
+					abfahrtElements.push(createElement('span', 'verspätung', [Math.floor(delay / (60 * 1000))]));
+				}
+				
+				var element = createElement('span', 'abfahrt', abfahrtElements);
+				
+				if (remaining <= 2 * 60 * 1000) {
+					element.addClass('verpasst');
+				} else if (remaining <= 5 * 60 * 1000) {
+					element.addClass('knapp');
+				}
+				
+				return element;
+			});
 			
 			var cellElements = [
 				createElement('th', '', [stationText]),
@@ -329,12 +332,12 @@ $(function () {
 								
 								stationboard.requestJourney(
 									departure,
+									useJourney,
 									function (error) {
 										console.log(['Could not get journey data.', departure]);
 										
 										useJourney([]);
-									},
-									useJourney);
+									});
 							} else {
 								data.departure = departure;
 							}
@@ -356,23 +359,62 @@ $(function () {
 		refresh();
 	};
 	
-	var stationIDs = [
-		'Zürich, Rosengartenstrasse',
-		'Zürich, Wipkingerplatz',
-		'Zürich, Escher-Wyss-Platz',
-		'Zürich Wipkingen (SBB)',
-		'Zürich Hardbrücke (SBB)'].slice(0, 1);
+	var stationSpecs = [
+		{
+			'stationID': 'Zürich, Rosengartenstrasse',
+			'journeyExclusions': [] },
+		{
+			'stationID': 'Zürich, Wipkingerplatz',
+			'journeyExclusions': [] },
+		{
+			'stationID': 'Zürich, Escher-Wyss-Platz',
+			'journeyExclusions': [
+				'Zürich, Rosengartenstrasse',
+				'Zürich, Wipkingerplatz'] },
+		{
+			'stationID': 'Zürich Wipkingen (SBB)',
+			'journeyExclusions': [
+				'Zürich, Rosengartenstrasse'] },
+		{
+			'stationID': 'Zürich Hardbrücke (SBB)',
+			'journeyExclusions': [
+				'Zürich, Escher-Wyss-Platz'] }];
 	
 	var refreshInterval = 20000;
 	
-	stationIDs.forEach(
-		function (stationID) {
-			subscribeStationBoard(
-				stationID,
-				refreshInterval,
-				function (data) {
-					$('#abfahrten tbody').empty().append(createRowElements(data));
+	var tableRowElementsByStationID = { };
+	
+	function updateTable() {
+		$('#abfahrten tbody').empty().append(concat(stationSpecs.map(function (stationSpec) {
+			return tableRowElementsByStationID[stationSpec.stationID];
+		})));
+	}
+	
+	stationSpecs.forEach(function (stationSpec) {
+		var stationID = stationSpec.stationID;
+		
+		var journeyExclusionsMap = { };
+		
+		stationSpec.journeyExclusions.forEach(function (x) {
+			journeyExclusionsMap[x] = true;
+		})
+		
+		tableRowElementsByStationID[stationID] = [];
+		
+		subscribeStationBoard(
+			stationID,
+			refreshInterval,
+			function (data) {
+				var filteredData = data.filter(function (x) {
+					return x.journey != null && x.journey.every(function (x) {
+						return !journeyExclusionsMap[x.station];
+					});
 				});
+				
+				tableRowElementsByStationID[stationID] = createRowElements(filteredData);
+				
+				updateTable();
+			});
 		});
 	
 	// Update clock.

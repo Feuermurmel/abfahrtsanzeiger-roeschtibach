@@ -12,7 +12,7 @@ stationboard = (function () {
 				var nextRequest = requestQueue.shift();
 				
 				if (nextRequest != null) {
-					requestRunning = true;
+				//	requestRunning = true;
 					
 					$.ajax(nextRequest);
 				}
@@ -104,11 +104,12 @@ stationboard = (function () {
 		var fragment = '/bin/traininfo.exe/dly/' + departure.trainID;
 		
 		var handleSuccess = function (response) {
-			return response.stops.map(
-				function (stopData) {
-					return {
-						'station': stopData.name };
-				})
+			success(
+				response.stops.map(
+					function (stopData) {
+						return {
+							'station': stopData.name };
+					}));
 		}
 		
 		queueRequest(fragment, { }, handleSuccess, failure);
