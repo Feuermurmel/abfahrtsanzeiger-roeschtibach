@@ -295,7 +295,7 @@ $(function () {
 						scheduleRefresh();
 					},
 					function (error) {
-						console.log(error);
+						console.log([stationID, error]);
 						scheduleRefresh();
 					});
 			}

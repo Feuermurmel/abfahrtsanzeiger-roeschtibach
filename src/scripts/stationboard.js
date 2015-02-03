@@ -1,37 +1,10 @@
 stationboard = (function () {
 	var endpoint = 'http://online.fahrplan.zvv.ch';
 	
-	var loadScript = function (url, data, success, failure) {
-		var scriptElement = $(document.createElement('script'));
-		
-		$('head').append(scriptElement);
-		
-		var cleanup = function () {
-			scriptElement.remove();
-		}
-		
-		scriptElement.on(
-			'load',
-			function () {
-				cleanup();
-				success();
-			});
-		
-		scriptElement.on(
-			'error',
-			function (error) {
-				cleanup();
-				failure(error);
-			});
-		
-		scriptElement.attr('type', 'text/javascript');
-		scriptElement.attr('src', url + '?' + $.param(data));
-	}
-	
 	var requestQueue = [];
 	var requestRunning = false;
 	
-	var queueRequest = function (url, data, success, failure) {
+	var queueRequest = function (fragment, data, success, failure) {
 		var processQueue = function () {
 			if (!requestRunning) {
 				var nextRequest = requestQueue.shift();
@@ -39,35 +12,44 @@ stationboard = (function () {
 				if (nextRequest != null) {
 					requestRunning = true;
 					
-					nextRequest();
+					$.ajax(nextRequest);
 				}
 			}
 		}
 		
 		requestQueue.push(
-			function () {
-				loadScript(
-					url,
-					data,
-					function () {
-						success();
+			{
+				'url': endpoint + fragment,
+				'data': data,
+				'success':
+					function (data) {
+						try {
+							var res = JSON2.parse(data.replace(/^journeysObj = /, ''));
+						} catch (error) {
+							failure(error);
+							
+							return;
+						}
+						
+						success(res);
 						
 						requestRunning = false;
 						processQueue();
 					},
+				'failure':
 					function (error) {
 						failure(error);
 						
 						requestRunning = false;
 						processQueue();
-					});
+					}
 			});
 		
 		processQueue();
 	}
 	
 	var requestDepartures = function (stationID, success, failure) {
-		var url = endpoint + '/bin/stboard.exe/dl'
+		var fragment = '/bin/stboard.exe/dl'
 		
 		var data = {
 			'L': 'vs_stbzvv',
@@ -77,22 +59,7 @@ stationboard = (function () {
 			'requestType': '0',
 			'nocache': new Date().getTime() };
 		
-		queueRequest(
-			url,
-			data,
-			function () {
-				if (window.journeysObj == null || window.journeysObj.journey == null) {
-					failure(['Empty data was loaded.', stationID]);
-				} else {
-					res = window.journeysObj;
-					window.journeysObj = null;
-					
-					success(res);
-				}
-			},
-			function (error) {
-				failure(['Loading data failed.', stationID, error]);
-			});
+		queueRequest(fragment, data, success, failure);
 	}
 	
 	return {
