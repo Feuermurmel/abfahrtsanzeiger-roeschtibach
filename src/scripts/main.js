@@ -103,6 +103,7 @@ $(function () {
 		setTimeout(reSchedule, 0);
 	}
 	
+	// Scheudle the specified function `action` to be scheduled wheneer the unix epoch in milliseconds crosses a number divisible by `interval`.
 	var scheduleOnInterval = function (interval, action) {
 		var now = new Date().getTime();
 		
@@ -110,7 +111,13 @@ $(function () {
 			scheduleAt(
 				time,
 				function () {
-					schedule(time + interval);
+					var now = new Date().getTime();
+					
+					while (time < now) {
+						time += interval;
+					}
+					
+					schedule(time);
 					action();
 				});
 		}
