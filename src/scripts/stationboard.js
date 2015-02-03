@@ -59,7 +59,40 @@ stationboard = (function () {
 			'requestType': '0',
 			'nocache': new Date().getTime() };
 		
-		queueRequest(fragment, data, success, failure);
+		var handleSuccess = function (data) {
+			var departures = data.journey.map(
+				function (departureData) {
+					var delayString = departureData.rt.dlm;
+					
+					if (delayString == null) {
+						delayString = '0';
+					}
+					
+					var delay = parseInt(delayString) * 60 * 1000;
+					
+					var dateParts = departureData.da.split('.');
+					var timeParts = departureData.ti.split(':');
+					var time = new Date(
+						parseInt(dateParts[2]) + 2000,
+						parseInt(dateParts[1]) - 1,
+						parseInt(dateParts[0]),
+						parseInt(timeParts[0]),
+						parseInt(timeParts[1]));
+					
+					var scheduled = time.getTime();
+					
+					return {
+						'station': data.stationName,
+						'product': departureData.pr,
+						'direction': departureData.st,
+						'scheduled': scheduled,
+						'estimated': scheduled + delay };
+				});
+			
+			success(departures);
+		}
+		
+		queueRequest(fragment, data, handleSuccess, failure);
 	}
 	
 	return {
