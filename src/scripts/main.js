@@ -1,5 +1,15 @@
 $(function () {
+	'use strict';
+	
 	var sortBy = function (list, keyFunctions) {
+		if (keyFunctions == null) {
+			keyFunctions = function (x) { return x };
+		}
+		
+		if (!(keyFunctions instanceof Array)) {
+			keyFunctions = [keyFunctions];
+		}
+		
 		var res = list.slice();
 		
 		res.sort(
@@ -18,6 +28,38 @@ $(function () {
 				
 				return 0;
 			});
+		
+		return res;
+	}
+	
+	function groupBy(list, keyFunction) {
+		var res= { };
+		
+		list.forEach(function (x) {
+			computeIfAbsent(res, keyFunction(x), function () {
+				return [];
+			}).push(x);
+		});
+		
+		return res;
+	}
+	
+	function mapValues(map, mapFunction) {
+		var res = { };
+		
+		$.each(map, function (k, v) {
+			res[k] = mapFunction(v);
+		});
+		
+		return res;
+	}
+	
+	function keys(map) {
+		var res = [];
+		
+		$.each(map, function (x) {
+			res.push(x);
+		});
 		
 		return res;
 	}
@@ -91,7 +133,7 @@ $(function () {
 			var now = new Date().getTime();
 			var delay = date - now;
 			
-			// WebKit os OS X seems to notoriously schedule tasks too early.
+			// WebKit on OS X seems to notoriously schedule tasks too early.
 			if (delay > 0) {
 				setTimeout(reSchedule, delay);
 			} else {
@@ -117,7 +159,7 @@ $(function () {
 	
 	var createReplacementFunction = function (replacements) {
 		return function (name) {
-			replacements.map(
+			replacements.forEach(
 				function (x) {
 					name = name.replace(x[0], x[1]);
 				});
@@ -136,29 +178,29 @@ $(function () {
 	
 	var dataByStationID = { };
 	
-	var updateTable = function () {
-		var departuresByStationProductDirection = { };
-		
-		// Gather departures indexed by station, product and direction.
-		$.each(
-			dataByStationID,
-			function (stationID, data) {
-				data.map(
-					function (departure) {
-						var departuresList = computeIfAbsent(
-							computeIfAbsent(
-								computeIfAbsent(
-									departuresByStationProductDirection,
-									departure.station,
-									function () { return { }; }),
-								departure.product,
-								function () { return { }; }),
-							departure.direction,
-							function () { return []; });
-						
-						departuresList.push(departure);
-					});
-			});
+	function createRowElements(data) {
+		var departuresByStationProductDirection =
+			mapValues(
+				groupBy(data, function (x) {
+					return x.departure.station;
+				}),
+				function (x) {
+					return mapValues(
+						groupBy(x, function (x) {
+							return x.departure.product;
+						}),
+						function (x) {
+							return mapValues(
+								groupBy(x, function (x) {
+									return x.departure.direction;
+								}),
+								function (x) {
+									return sortBy(x, function (x) {
+										return x.departure.scheduled;
+									});
+								});
+						});
+				});
 		
 		var currentStation = null;
 		
@@ -175,7 +217,8 @@ $(function () {
 			productElement.attr('linie', product);
 			
 			var departureElements = departures.map(
-				function (departure) {
+				function (data) {
+					var departure = data.departure;
 					var delay = departure.estimated - departure.scheduled;
 					var abfahrtElements = [formatDate(departure.scheduled, 'H:M')];
 					var remaining = departure.estimated - new Date().getTime();
@@ -225,56 +268,111 @@ $(function () {
 				departuresAtStation = sortBy(
 					departuresAtStation,
 					[
-						function (x) { return x[0].scheduled; },
-						function (x) { return x[0].product; },
-						function (x) { return x[0].direction; }]);
+						function (x) { return x[0].departure.scheduled; },
+						function (x) { return x[0].departure.product; },
+						function (x) { return x[0].departure.direction; }]);
 				
-				departuresAtStation.map(
+				departuresAtStation.forEach(
 					function (departures) {
-						var product = departures[0].product;
-						var direction = departures[0].direction;
+						var product = departures[0].departure.product;
+						var direction = departures[0].departure.direction;
 						
 						rowElements.push(createRowElement(station, product, direction, departures));
 					});
 			});
 		
-		$('#abfahrten tbody').empty().append(rowElements);
+		return rowElements;
 	};
 	
 	// Run this on every full minute to update blinking tags and such.
-	scheduleOnInterval(60 * 1000, updateTable);
+	//scheduleOnInterval(60 * 1000, updateTable);
+	
+	function subscribeStationBoard(stationID, refreshInterval, handleUpdatedData) {
+		var departureDataByID = { };
+		
+		function publishData() {
+			var res = [];
+			
+			$.each(
+				departureDataByID,
+				function (_, x) {
+					res.push(x);
+				});
+			
+			handleUpdatedData(res);
+		}
+		
+		function refresh() {
+			function scheduleRefresh() {
+				window.setTimeout(refresh, refreshInterval);
+			}
+			
+			stationboard.requestDepartures(
+				stationID,
+				function (departures) {
+					var newDepartureDataByID = { };
+					
+					departures.forEach(
+						function (departure) {
+							var data = departureDataByID[departure.id];
+							
+							function useJourney(journey) {
+								data.journey = journey;
+								
+								publishData();
+							}
+							
+							if (data == null) {
+								data = {
+									'departure': departure,
+									'journey': null };
+								
+								stationboard.requestJourney(
+									departure,
+									function (error) {
+										console.log(['Could not get journey data.', departure]);
+										
+										useJourney([]);
+									},
+									useJourney);
+							} else {
+								data.departure = departure;
+							}
+							
+							newDepartureDataByID[departure.id] = data;
+						});
+					
+					departureDataByID = newDepartureDataByID;
+					
+					publishData();
+					scheduleRefresh();
+				},
+				function (error) {
+					console.log([stationID, error]);
+					scheduleRefresh();
+				});
+		}
+		
+		refresh();
+	};
 	
 	var stationIDs = [
 		'Zürich, Rosengartenstrasse',
 		'Zürich, Wipkingerplatz',
 		'Zürich, Escher-Wyss-Platz',
 		'Zürich Wipkingen (SBB)',
-		'Zürich Hardbrücke (SBB)'];
+		'Zürich Hardbrücke (SBB)'].slice(0, 1);
 	
 	var refreshInterval = 20000;
 	
-	stationIDs.map(
+	stationIDs.forEach(
 		function (stationID) {
-			var scheduleRefresh = function () {
-				window.setTimeout(refresh, refreshInterval);
-			}
-			
-			var refresh = function () {
-				stationboard.requestDepartures(
-					stationID,
-					function (data) {
-						dataByStationID[stationID] = data;
-						
-						updateTable();
-						scheduleRefresh();
-					},
-					function (error) {
-						console.log([stationID, error]);
-						scheduleRefresh();
-					});
-			}
-			
-			refresh();
+			subscribeStationBoard(
+				stationID,
+				refreshInterval,
+				function (data) {
+					$('#abfahrten tbody').empty().append(createRowElements(data));
+				});
 		});
 	
 	// Update clock.
