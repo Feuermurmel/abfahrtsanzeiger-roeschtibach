@@ -324,10 +324,19 @@ $(function () {
 						function (departure) {
 							var data = departureDataByID[departure.id];
 							
-							function useJourney(journey) {
-								data.journey = journey;
-								
-								publishData();
+							function requestJourney() {
+								stationboard.requestJourney(
+									departure,
+									function (response) {
+										data.journey = response;
+										
+										publishData();
+									},
+									function (error) {
+										console.log(['Could not get journey data.', departure]);
+										
+										requestJourney();
+									});
 							}
 							
 							if (data == null) {
@@ -335,14 +344,7 @@ $(function () {
 									'departure': departure,
 									'journey': null };
 								
-								stationboard.requestJourney(
-									departure,
-									useJourney,
-									function (error) {
-										console.log(['Could not get journey data.', departure]);
-										
-										useJourney([]);
-									});
+								requestJourney();
 							} else {
 								data.departure = departure;
 							}
