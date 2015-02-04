@@ -174,6 +174,7 @@ $(function () {
 	
 	var fixStationName = createReplacementFunction(
 		[
+			[/\s+$/, ''],
 			[/^Zürich, /, ''],
 			[/ \(SBB\)$/, '']])
 	
