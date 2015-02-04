@@ -217,8 +217,6 @@ $(function () {
 			if (currentStation != station) {
 				currentStation = station;
 				stationText = fixStationName(station);
-				
-				console.log([station, stationText]);
 			}
 			
 			var productName = fixProductName(product);
@@ -293,9 +291,6 @@ $(function () {
 		return rowElements;
 	};
 	
-	// Run this on every full minute to update blinking tags and such.
-	//scheduleOnInterval(60 * 1000, updateTable);
-	
 	function subscribeStationBoard(stationID, refreshInterval, handleUpdatedData) {
 		var departureDataByID = { };
 		
@@ -334,7 +329,7 @@ $(function () {
 										publishData();
 									},
 									function (error) {
-										console.log(['Could not get journey data.', departure]);
+										console.log(['Error getting journey data.', departure]);
 										
 										requestJourney();
 									});
@@ -359,7 +354,7 @@ $(function () {
 					scheduleRefresh();
 				},
 				function (error) {
-					console.log([stationID, error]);
+					console.log(['Error getting departures.', stationID, error]);
 					scheduleRefresh();
 				});
 		}
@@ -391,11 +386,20 @@ $(function () {
 	var refreshInterval = 20000;
 	
 	var tableRowElementsByStationID = { };
+	var filteredDataByStationID = { };
 	
 	function updateTable() {
 		$('#abfahrten tbody').empty().append(concat(stationSpecs.map(function (stationSpec) {
 			return tableRowElementsByStationID[stationSpec.stationID];
 		})));
+	}
+	
+	function updateRowElementsForStation(stationID) {
+		var filteredData = filteredDataByStationID[stationID];
+		
+		if (filteredData != null) {
+			tableRowElementsByStationID[stationID] = createRowElements(filteredData);
+		}
 	}
 	
 	stationSpecs.forEach(function (stationSpec) {
@@ -413,16 +417,26 @@ $(function () {
 			stationID,
 			refreshInterval,
 			function (data) {
-				var filteredData = data.filter(function (x) {
+				filteredDataByStationID[stationID] = data.filter(function (x) {
 					return x.journey != null && x.journey.every(function (x) {
 						return !journeyExclusionsMap[x.station];
 					});
 				});
 				
-				tableRowElementsByStationID[stationID] = createRowElements(filteredData);
-				
+				updateRowElementsForStation(stationID);
 				updateTable();
 			});
+		});
+		
+	// Run this on every full minute to update departure states.
+	scheduleOnInterval(
+		60 * 1000,
+		function () {
+			stationSpecs.forEach(function (stationSpec) {
+				updateRowElementsForStation(stationSpec.stationID);
+			});
+			
+			updateTable();
 		});
 	
 	// Update clock.
