@@ -178,7 +178,9 @@ $(function () {
 			[/ \(SBB\)$/, '']])
 	
 	var fixProductName = createReplacementFunction(
-		[[/ +/, '']])
+		[
+			[/^(S) +([0-9]{5})$/, 'E'],
+			[/^(S) +([0-9]+)$/, '$1$2']])
 	
 	var dataByStationID = { };
 	
@@ -214,11 +216,14 @@ $(function () {
 			if (currentStation != station) {
 				currentStation = station;
 				stationText = fixStationName(station);
+				
+				console.log([station, stationText]);
 			}
 			
-			var productElement = createElement('span', 'linie', [createElement('span', '', fixProductName(product))]);
+			var productName = fixProductName(product);
+			var productElement = createElement('span', 'linie', [createElement('span', '', productName)]);
 			
-			productElement.attr('linie', product);
+			productElement.attr('linie', productName);
 			
 			var departureElements = departures.map(function (data) {
 				var departure = data.departure;
