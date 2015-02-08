@@ -216,6 +216,7 @@ $(function () {
 			var departureElements = departures.map(function (data) {
 				var departure = data.departure;
 				var delay = departure.estimated - departure.scheduled;
+				var delayMinutes = Math.ceil(delay / (60 * 1000));
 				var remaining = departure.estimated - new Date().getTime();
 				var remainingMinutes = Math.ceil(remaining / (60 * 1000)) - 1;
 				var abfahrtElements = null;
@@ -229,8 +230,8 @@ $(function () {
 				} else {
 					abfahrtElements = [formatDate(departure.scheduled, 'H:M')];
 					
-					if (delay > 2) {
-						abfahrtElements.push(createElement('span', 'verspätung', [Math.ceil(delay / (60 * 1000))]));
+					if (delayMinutes > 2) {
+						abfahrtElements.push(createElement('span', 'verspätung', [delayMinutes]));
 					}
 				}
 				
