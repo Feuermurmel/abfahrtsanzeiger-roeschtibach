@@ -97,7 +97,7 @@ $(function () {
 		return value;
 	}
 	
-	var formatNumber = function (x, width) {
+	function formatNumber(x, width) {
 		var res = '' + x;
 		
 		while (res.length < width) {
@@ -107,7 +107,18 @@ $(function () {
 		return res;
 	}
 	
-	var formatDate = function (date, parts) {
+	function formatDurationMinutes(x, width) {
+		var hours = Math.floor(x / 60);
+		var minutes = x - hours * 60;
+		
+		if (hours > 0) {
+			return hours + 'h' + formatNumber(minutes, 2);
+		} else {
+			return minutes + '\'';
+		}
+	}
+	
+	function formatDate(date, parts) {
 		if (!(date instanceof Date)) {
 			date = new Date(date);
 		}
@@ -210,15 +221,11 @@ $(function () {
 				var abfahrtElements = null;
 				
 				if (remainingTime) {
-					var remainingMinutesText = null;
-					
-					if (remainingMinutes > 0) {
-						remainingMinutesText = remainingMinutes + '\'';
-					} else {
-						remainingMinutesText = '0\'';
+					if (remainingMinutes < 0) {
+						remainingMinutes = 0;
 					}
 					
-					abfahrtElements = [remainingMinutesText];
+					abfahrtElements = [formatDurationMinutes(remainingMinutes)];
 				} else {
 					abfahrtElements = [formatDate(departure.scheduled, 'H:M')];
 					

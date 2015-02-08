@@ -53,7 +53,7 @@ stationboard = (function () {
 			'input': stationID,
 			'boardType': 'dep',
 			'start': 'yes',
-			'requestType': '0',
+			'requestType': 0,
 			'nocache': new Date().getTime() };
 		
 		var handleSuccess = function (response) {
