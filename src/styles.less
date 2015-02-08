@@ -23,12 +23,31 @@
 }
 
 body {
+	margin: 0em;
+	background-color: white;
 	font-family: 'OfficinaSansITC';
 	font-weight: 100;
 	font-size: 18px;
-	background-color: white;
 	color: black;
 	-webkit-text-size-adjust: none;
+}
+
+.spalten {
+	display: table;
+	width: 100%;
+	table-layout: fixed;
+	border-spacing: 1em;
+	
+	.nahverkehr, .fernverkehr {
+		display: table-cell;
+	}
+}
+
+h3 {
+	font-size: 1.2em;
+	margin-top: 1em;
+	margin-bottom: .5em;
+	margin-left: .05em;
 }
 
 table {
