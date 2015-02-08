@@ -69,6 +69,14 @@ $(function () {
 	}
 	
 	var createElement = function (tag, clazz, elements) {
+		if (clazz == null) {
+			clazz = '';
+		}
+		
+		if (elements == null) {
+			clazz = [];
+		}
+		
 		var element = $(document.createElement(tag));
 		
 		element.addClass(clazz);
@@ -186,39 +194,9 @@ $(function () {
 	var dataByStationID = { };
 	
 	function createRowElements(data) {
-		var departuresByStationProductDirection =
-			mapValues(
-				groupBy(data, function (x) {
-					return x.departure.station;
-				}),
-				function (x) {
-					return mapValues(
-						groupBy(x, function (x) {
-							return x.departure.product;
-						}),
-						function (x) {
-							return mapValues(
-								groupBy(x, function (x) {
-									return x.departure.direction;
-								}),
-								function (x) {
-									return sortBy(x, function (x) {
-										return x.departure.scheduled;
-									});
-								});
-						});
-				});
+		var rowElements = [];
 		
-		var currentStation = null;
-		
-		var createRowElement = function (station, product, direction, departures) {
-			var stationText = null;
-			
-			if (currentStation != station) {
-				currentStation = station;
-				stationText = fixStationName(station);
-			}
-			
+		function addRow(station, product, direction, departures) {
 			var productName = fixProductName(product);
 			var productElement = createElement('span', 'linie', [createElement('span', '', productName)]);
 			
@@ -248,47 +226,75 @@ $(function () {
 			});
 			
 			var cellElements = [
-				createElement('th', '', [stationText]),
 				createElement('td', '', [productElement]),
 				createElement('td', '', [fixStationName(direction)]),
 				createElement('td', '', departureElements)];
 			
-			return createElement('tr', '', cellElements);
+			rowElements.push(createElement('tr', '', cellElements));
 		}
 		
-		var rowElements = [];
-		
-		$.each(
-			departuresByStationProductDirection,
-			function (station, departuresByProductDirection) {
-				var departuresAtStation = [];
-				
-				// Gather all groups of departures at this station in a flat list.
-				$.each(
-					departuresByProductDirection,
-					function (product, departuresByDirection) {
-						$.each(
-							departuresByDirection,
-							function (direction, departures) {
-								departuresAtStation.push(departures)
+		if (data.length == 0) {
+			var noDeparturesCell = createElement('td', '', ['Keine relevanten Abfahrten in der nächsten Stunde.']);
+			
+			noDeparturesCell.attr('colspan', 3);
+			
+			rowElements.push(createElement('tr', 'keine-abfahrten', [noDeparturesCell]));
+		} else {
+			var departuresByStationProductDirection =
+				mapValues(
+					groupBy(data, function (x) {
+						return x.departure.station;
+					}),
+					function (x) {
+						return mapValues(
+							groupBy(x, function (x) {
+								return x.departure.product;
+							}),
+							function (x) {
+								return mapValues(
+									groupBy(x, function (x) {
+										return x.departure.direction;
+									}),
+									function (x) {
+										return sortBy(x, function (x) {
+											return x.departure.scheduled;
+										});
+									});
 							});
 					});
-				
-				departuresAtStation = sortBy(
-					departuresAtStation,
-					[
-						function (x) { return x[0].departure.scheduled; },
-						function (x) { return x[0].departure.product; },
-						function (x) { return x[0].departure.direction; }]);
-				
-				departuresAtStation.forEach(
-					function (departures) {
-						var product = departures[0].departure.product;
-						var direction = departures[0].departure.direction;
-						
-						rowElements.push(createRowElement(station, product, direction, departures));
-					});
-			});
+			
+			$.each(
+				departuresByStationProductDirection,
+				function (station, departuresByProductDirection) {
+					var departuresAtStation = [];
+					
+					// Gather all groups of departures at this station in a flat list.
+					$.each(
+						departuresByProductDirection,
+						function (product, departuresByDirection) {
+							$.each(
+								departuresByDirection,
+								function (direction, departures) {
+									departuresAtStation.push(departures)
+								});
+						});
+					
+					departuresAtStation = sortBy(
+						departuresAtStation,
+						[
+							function (x) { return x[0].departure.estimated; },
+							function (x) { return x[0].departure.product; },
+							function (x) { return x[0].departure.direction; }]);
+					
+					departuresAtStation.forEach(
+						function (departures) {
+							var product = departures[0].departure.product;
+							var direction = departures[0].departure.direction;
+							
+							addRow(station, product, direction, departures);
+						});
+				});
+		}
 		
 		return rowElements;
 	};
@@ -364,82 +370,66 @@ $(function () {
 		refresh();
 	};
 	
-	var stationSpecs = [
-		{
-			'stationID': 'Zürich, Rosengartenstrasse',
-			'journeyExclusions': [] },
-		{
-			'stationID': 'Zürich, Wipkingerplatz',
-			'journeyExclusions': [] },
-		{
-			'stationID': 'Zürich, Escher-Wyss-Platz',
-			'journeyExclusions': [
-				'Zürich, Rosengartenstrasse',
-				'Zürich, Wipkingerplatz'] },
-		{
-			'stationID': 'Zürich Wipkingen (SBB)',
-			'journeyExclusions': [
-				'Zürich, Rosengartenstrasse'] },
-		{
-			'stationID': 'Zürich Hardbrücke (SBB)',
-			'journeyExclusions': [
-				'Zürich, Escher-Wyss-Platz'] }];
-	
 	var refreshInterval = 20000;
 	
 	var tableRowElementsByStationID = { };
 	var filteredDataByStationID = { };
 	
-	function updateTable() {
-		$('#abfahrten tbody').empty().append(concat(stationSpecs.map(function (stationSpec) {
-			return tableRowElementsByStationID[stationSpec.stationID];
-		})));
-	}
-	
-	function updateRowElementsForStation(stationID) {
-		var filteredData = filteredDataByStationID[stationID];
+	function setupDepartureTable(tableElement, stationID, journeyExclusions) {
+		var tableBodyElement = createElement('tbody');
 		
-		if (filteredData != null) {
-			tableRowElementsByStationID[stationID] = createRowElements(filteredData);
-		}
-	}
-	
-	stationSpecs.forEach(function (stationSpec) {
-		var stationID = stationSpec.stationID;
+		$(tableElement).append(
+			[
+				createElement('col', 'linie', []),
+				createElement('col', 'richtung', []),
+				createElement('col', 'abfahrten', []),
+				createElement(
+					'thead',
+					'',
+					[
+						createElement(
+							'tr',
+							'',
+							[
+								createElement('td'),
+								createElement('td', '', ['Richtung']),
+								createElement('td', '', ['Abfahrten'])])]),
+				tableBodyElement]);
 		
 		var journeyExclusionsMap = { };
 		
-		stationSpec.journeyExclusions.forEach(function (x) {
+		journeyExclusions.forEach(function (x) {
 			journeyExclusionsMap[x] = true;
 		})
 		
-		tableRowElementsByStationID[stationID] = [];
+		var filteredData = [];
+		
+		function udpateTable() {
+			tableBodyElement.empty().append(createRowElements(filteredData));
+		}
 		
 		subscribeStationBoard(
 			stationID,
 			refreshInterval,
 			function (data) {
-				filteredDataByStationID[stationID] = data.filter(function (x) {
+				filteredData = data.filter(function (x) {
 					return x.journey != null && x.journey.every(function (x) {
 						return !journeyExclusionsMap[x.station];
 					});
 				});
 				
-				updateRowElementsForStation(stationID);
-				updateTable();
+				udpateTable();
 			});
-		});
 		
-	// Run this on every full minute to update departure states.
-	scheduleOnInterval(
-		60 * 1000,
-		function () {
-			stationSpecs.forEach(function (stationSpec) {
-				updateRowElementsForStation(stationSpec.stationID);
-			});
-			
-			updateTable();
-		});
+		// Run this on every full minute to update departure states and time remaining.
+		scheduleOnInterval(60 * 1000, udpateTable);
+	}
+	
+	setupDepartureTable($('#t1'), 'Zürich, Rosengartenstrasse', []);
+	setupDepartureTable($('#t2'), 'Zürich, Wipkingerplatz', []);
+	setupDepartureTable($('#t3'), 'Zürich, Escher-Wyss-Platz', ['Zürich, Rosengartenstrasse', 'Zürich, Wipkingerplatz']);
+	setupDepartureTable($('#t4'), 'Zürich Wipkingen (SBB)', ['Zürich, Rosengartenstrasse']);
+	setupDepartureTable($('#t5'), 'Zürich Hardbrücke (SBB)', ['Zürich, Escher-Wyss-Platz']);
 	
 	// Update clock.
 	scheduleOnInterval(
