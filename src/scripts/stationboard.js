@@ -65,7 +65,13 @@ stationboard = (function () {
 				return;
 			}
 			
-			var departures = data.journey.map(
+			var journeyData = data.journey;
+			
+			if (journeyData == null) {
+				journeyData = [];
+			}
+			
+			var departures = journeyData.map(
 				function (departureData) {
 					var delayString = departureData.rt.dlm;
 					
