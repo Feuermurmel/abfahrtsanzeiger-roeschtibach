@@ -227,18 +227,20 @@ $(function () {
 			var departureElements = departures.map(function (data) {
 				var departure = data.departure;
 				var delay = departure.estimated - departure.scheduled;
-				var abfahrtElements = [formatDate(departure.scheduled, 'H:M')];
 				var remaining = departure.estimated - new Date().getTime();
+				var remainingMinutes = Math.ceil(remaining / (60 * 1000));
 				
-				if (delay > 0) {
-					abfahrtElements.push(createElement('span', 'verspätung', [Math.floor(delay / (60 * 1000))]));
-				}
+				var abfahrtElements = [remainingMinutes + '\''];
+				
+			//	if (delay > 0) {
+			// 	abfahrtElements.push(createElement('span', 'verspätung', [Math.floor(delay / (60 * 1000))]));
+			// }
 				
 				var element = createElement('span', 'abfahrt', abfahrtElements);
 				
-				if (remaining <= 2 * 60 * 1000) {
+				if (remainingMinutes < 3) {
 					element.addClass('verpasst');
-				} else if (remaining <= 5 * 60 * 1000) {
+				} else if (remainingMinutes < 6) {
 					element.addClass('knapp');
 				}
 				
