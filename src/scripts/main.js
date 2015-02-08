@@ -180,8 +180,8 @@ $(function () {
 	
 	var fixProductName = createReplacementFunction(
 		[
-			[/^(S) +([0-9]{5})$/, 'E'],
-			[/^(S) +([0-9]+)$/, '$1$2']])
+			[/^S(N?) +[0-9]{5}$/, 'E$1'],
+			[/^(SN?) +([0-9]+)$/, '$1$2']])
 	
 	var dataByStationID = { };
 	
