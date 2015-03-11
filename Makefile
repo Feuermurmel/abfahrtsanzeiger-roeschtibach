@@ -9,18 +9,7 @@ clean:
 	rm -rf out deploy
 
 deploy:
-	rm -rf deploy
-	mkdir deploy
-	git clone . deploy
-	cd deploy; \
-		commit=$$(git rev-parse HEAD); \
-		$(MAKE) all; \
-		cd out; \
-		git init; \
-		git add .; \
-		git commit -m "Deployed from commit $$commit."
-	git fetch -f deploy/out HEAD:gh-pages
-	git push -f origin gh-pages
+	./deploy.sh
 
 out/%.css: out/%.less
 	lessc --source-map $< $@
