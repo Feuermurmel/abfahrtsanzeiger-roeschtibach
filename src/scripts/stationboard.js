@@ -1,7 +1,7 @@
 stationboard = (function () {
 	'use strict';
 	
-	var endpoint = 'http://online.fahrplan.zvv.ch';
+//	var endpoint = 'http://online.fahrplan.zvv.ch';
 	var endpoint = 'http://apu.feuermurmel.ch:8899';
 	
 	var requestQueue = [];
@@ -49,7 +49,7 @@ stationboard = (function () {
 		var fragment = '/bin/stboard.exe/dl'
 		
 		var data = {
-			'L': 'vs_stbzvv',
+			'L': '2014.vs_stbzvv',
 			'input': stationID,
 			'boardType': 'dep',
 			'start': 'yes',
