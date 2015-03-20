@@ -34,14 +34,21 @@ body {
 }
 
 .spalten {
-	margin: -1em;
-	display: table;
-	min-width: 100%;
-	table-layout: fixed;
-	border-spacing: 1em;
+	@cell-spacing: 1em;
 	
-	.nahverkehr, .fernverkehr {
-		display: table-cell;
+	// Remove the table border on the outside.
+	margin: 0em -@cell-spacing;
+	
+	> div {
+		margin: 0em;
+		display: table;
+		min-width: 100%;
+		table-layout: fixed;
+		border-spacing: @cell-spacing;
+		
+		> div {
+			display: table-cell;
+		}
 	}
 }
 
@@ -108,12 +115,14 @@ table {
 		border-width: .15em;
 	}
 	
+	// The span drawing the background of the line number.
 	span.linie {
 		display: inline-block;
 		min-width: 1.5em;
 		height: 1.5em;
 		text-align: center;
 		
+		// Another span wrapping the line number so we can position it accurately.
 		& > span {
 			font-family: 'Helvetica Neue';
 			font-weight: 600;
