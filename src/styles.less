@@ -198,7 +198,7 @@ table {
 		}
 	}
 	
-	span.abfahrt:nth-child(n+2):before {
+	span.abfahrt:not(:last-child):after {
 		content: ', ';
 	}
 	
