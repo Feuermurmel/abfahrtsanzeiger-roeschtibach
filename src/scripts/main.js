@@ -204,10 +204,15 @@ $(function () {
 	
 	var dataByStationID = { };
 	
+	// Create and return a set of <tr> elements representing the departures in the specified data.
+	// data: Object with `departure` and `journey` elements.
+	// remainingTime: Boolean specifying whether to display the demaining time or or the absolute time of a departure.
+	// travelTimeMinutes: Minimum time remaining bevore the departure time starts blinking.
+	// knappTravelTimeMinutes: Minimum time remaining bevore the departure time is grayed out.
 	function createRowElements(data, remainingTime, travelTimeMinutes, knappTravelTimeMinutes) {
 		var rowElements = [];
 		
-		function addRow(station, product, direction, departures) {
+		function addRow(product, direction, departures) {
 			var productName = fixProductName(product);
 			var productElement = createElement('span', 'linie', [createElement('span', '', productName)]);
 			
@@ -261,60 +266,49 @@ $(function () {
 			
 			rowElements.push(createElement('tr', 'keine-abfahrten', [noDeparturesCell]));
 		} else {
-			var departuresByStationProductDirection =
-				mapValues(
-					groupBy(data, function (x) {
-						return x.departure.station;
-					}),
-					function (x) {
-						return mapValues(
-							groupBy(x, function (x) {
-								return x.departure.product;
-							}),
-							function (x) {
-								return mapValues(
-									groupBy(x, function (x) {
-										return x.departure.direction;
-									}),
-									function (x) {
-										return sortBy(x, function (x) {
-											return x.departure.scheduled;
-										});
-									});
+			var departuresByProductDirection = mapValues(
+				groupBy(data, function (x) {
+					return x.departure.product;
+				}),
+				function (x) {
+					return mapValues(
+						groupBy(x, function (x) {
+							return x.departure.direction;
+						}),
+						function (x) {
+							return sortBy(x, function (x) {
+								return x.departure.scheduled;
 							});
-					});
-			
-			$.each(
-				departuresByStationProductDirection,
-				function (station, departuresByProductDirection) {
-					var departuresAtStation = [];
-					
-					// Gather all groups of departures at this station in a flat list.
-					$.each(
-						departuresByProductDirection,
-						function (product, departuresByDirection) {
-							$.each(
-								departuresByDirection,
-								function (direction, departures) {
-									departuresAtStation.push(departures)
-								});
-						});
-					
-					departuresAtStation = sortBy(
-						departuresAtStation,
-						[
-							function (x) { return x[0].departure.estimated; },
-							function (x) { return x[0].departure.product; },
-							function (x) { return x[0].departure.direction; }]);
-					
-					departuresAtStation.forEach(
-						function (departures) {
-							var product = departures[0].departure.product;
-							var direction = departures[0].departure.direction;
-							
-							addRow(station, product, direction, departures);
 						});
 				});
+				
+				var departuresAtStation = [];
+				
+				// Gather all groups of departures at this station in a flat list.
+				$.each(
+					departuresByProductDirection,
+					function (product, departuresByDirection) {
+						$.each(
+							departuresByDirection,
+							function (direction, departures) {
+								departuresAtStation.push(departures)
+							});
+					});
+				
+				departuresAtStation = sortBy(
+					departuresAtStation,
+					[
+						function (x) { return x[0].departure.estimated; },
+						function (x) { return x[0].departure.product; },
+						function (x) { return x[0].departure.direction; }]);
+				
+				departuresAtStation.forEach(
+					function (departures) {
+						var product = departures[0].departure.product;
+						var direction = departures[0].departure.direction;
+						
+						addRow(product, direction, departures);
+					});
 		}
 		
 		return rowElements;
