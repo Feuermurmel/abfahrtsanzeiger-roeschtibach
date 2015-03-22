@@ -14,7 +14,7 @@ git clone . deploy
 	cd out;
 	git init;
 	git add .;
-	git commit -m "Deployed from commit $$commit."
+	git commit -m "Deployed from commit $commit."
 )
 
 git fetch -f deploy/out HEAD:gh-pages
