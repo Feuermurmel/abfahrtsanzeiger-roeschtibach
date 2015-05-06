@@ -1,13 +1,18 @@
 stationboard = (function () {
 	'use strict';
 	
-//	var endpoint = 'http://online.fahrplan.zvv.ch';
-	var endpoint = 'http://apu.feuermurmel.ch:8899';
-	
 	var requestQueue = [];
 	var requestRunning = false;
 	
-	var queueRequest = function (fragment, data, success, failure) {
+	function getEndpoint() {
+		if (hash.getCurrentValue()['direct'] == undefined) {
+			return 'zvv';
+		} else {
+			return 'http://online.fahrplan.zvv.ch'
+		}
+	}
+	
+	function queueRequest(fragment, data, success, failure) {
 		var processQueue = function () {
 			if (!requestRunning) {
 				var nextRequest = requestQueue.shift();
@@ -36,7 +41,7 @@ stationboard = (function () {
 		
 		requestQueue.push(function () {
 			$.ajax({
-				'url': endpoint + fragment,
+				'url': getEndpoint() + fragment,
 				'data': data,
 				'success': wrapCompletionFunction(success, 200),
 				'error': wrapCompletionFunction(failure, 5000) });
