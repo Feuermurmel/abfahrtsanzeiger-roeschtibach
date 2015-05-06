@@ -195,7 +195,10 @@ $(function () {
 		[
 			[/\s+$/, ''],
 			[/^Zürich, /, ''],
-			[/ \(SBB\)$/, '']])
+			[/ \(SBB\)$/, ''],
+			[/ N$/, ''],
+//			[/\/HB$/, ''],
+			[/^(Bahnhof|Zürich) (Tiefenbrunnen)$/, '$2']])
 	
 	var fixProductName = createReplacementFunction(
 		[
