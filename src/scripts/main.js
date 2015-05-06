@@ -501,4 +501,13 @@ $(function () {
 		function () {
 			$('body').toggleClass('blink-on');
 		});
+	
+	function handleHashUpdate(value) {
+		var kiosk = value['kiosk'] != undefined;
+		
+		$('body').toggleClass('kiosk', kiosk);
+	}
+	
+	hash.addUpdateHandler(handleHashUpdate);
+	handleHashUpdate(hash.getCurrentValue());
 });
