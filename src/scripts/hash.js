@@ -1,7 +1,7 @@
 hash = (function () {
 	'use strict';
 	
-	function getCurrentValue() {
+	function computeCurrentValue() {
 		var parts = window.location.hash.split('#');
 		
 		parts = parts[parts.length - 1].split('&');
@@ -17,14 +17,23 @@ hash = (function () {
 		return res;
 	}
 	
+	var currentValue = computeCurrentValue();
+	var updateHandlers = [];
+	
+	$(window).bind('hashchange', function () {
+		currentValue = computeCurrentValue();
+		
+		updateHandlers.forEach(function (handler) {
+			handler(currentValue);
+		})
+	});
+	
 	function addUpdateHandler(handler) {
-		$(window).bind('hashchange', function() {
-			handler(getCurrentValue());
-		});
+		updateHandlers.push(handler);
 	}
 	
 	return {
-		'getCurrentValue': getCurrentValue,
+		'getCurrentValue': function () { return currentValue; },
 		'addUpdateHandler': addUpdateHandler
 	}
 })()
