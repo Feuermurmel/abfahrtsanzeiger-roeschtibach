@@ -194,11 +194,12 @@ $(function () {
 	var fixStationName = createReplacementFunction(
 		[
 			[/\s+$/, ''],
-			[/^Zürich, /, ''],
-			[/ \(SBB\)$/, ''],
 			[/ N$/, ''],
-//			[/\/HB$/, ''],
-			[/^(Bahnhof|Zürich) (Tiefenbrunnen)$/, '$2']])
+			[/ \(SBB\)$/, ''],
+			[/^Zürich,? /, ''],
+			[/^Bahnhof /, ''],
+			[/^(Schmiede W)iedikon$/, '$1.'],
+			[/(Regensdorf|Opfikon|Tagelswangen|Unterengstringen), .*/, '$1']])
 	
 	var fixProductName = createReplacementFunction(
 		[
