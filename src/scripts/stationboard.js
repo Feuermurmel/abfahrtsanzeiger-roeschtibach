@@ -63,7 +63,8 @@ stationboard = (function () {
 		
 		var handleSuccess = function (response) {
 			try {
-				var data = JSON2.parse(response.replace(/^journeysObj = /, ''));
+				var code = 'var journeysObj;' + response + ';return journeysObj;'
+				var data = Function(code)();
 			} catch (error) {
 				failure(error);
 				
