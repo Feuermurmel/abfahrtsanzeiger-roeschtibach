@@ -271,9 +271,9 @@ $(function () {
 			
 			rowElements.push(createElement('tr', 'keine-abfahrten', [noDeparturesCell]));
 		} else {
-			var departuresByProductDirection = mapValues(
+			var departuresByProductNameDirection = mapValues(
 				groupBy(data, function (x) {
-					return x.departure.product;
+					return fixProductName(x.departure.product);
 				}),
 				function (x) {
 					return mapValues(
@@ -291,8 +291,8 @@ $(function () {
 				
 				// Gather all groups of departures at this station in a flat list.
 				$.each(
-					departuresByProductDirection,
-					function (product, departuresByDirection) {
+					departuresByProductNameDirection,
+					function (productName, departuresByDirection) {
 						$.each(
 							departuresByDirection,
 							function (direction, departures) {
