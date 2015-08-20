@@ -193,6 +193,7 @@ $(function () {
 	
 	var fixStationName = createReplacementFunction(
 		[
+			['&#252;', 'ü'],
 			[/\s+$/, ''],
 			[/ N$/, ''],
 			[/ \(SBB\)$/, ''],
