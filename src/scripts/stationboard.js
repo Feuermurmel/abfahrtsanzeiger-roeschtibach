@@ -50,45 +50,23 @@ stationboard = (function () {
 		processQueue();
 	}
 	
-	var requestDepartures = function (stationID, success, failure) {
-		var fragment = '/bin/stboard.exe/dl'
+	var requestDepartures = function (stationName, maxResults, success, failure) {
+		var fragment = '/bin/stboard.exe/dny'
 		
 		var data = {
-			'L': '2014.vs_stbzvv',
-			'input': stationID,
+			'tpl': 'stbResult2json',
+			'start': '0',
+			'maxJourneys': '' + maxResults,
+			'input': stationName,
 			'boardType': 'dep',
-			'start': 'yes',
-			'requestType': 0,
-			'nocache': new Date().getTime() };
+			'nocache': new Date().getTime()
+		};
 		
 		var handleSuccess = function (response) {
-			try {
-				var code = 'var journeysObj;' + response + ';return journeysObj;'
-				var data = Function(code)();
-			} catch (error) {
-				failure(error);
-				
-				return;
-			}
-			
-			var journeyData = data.journey;
-			
-			if (journeyData == null) {
-				journeyData = [];
-			}
-			
-			var departures = journeyData.map(
-				function (departureData) {
-					var delayString = departureData.rt.dlm;
-					
-					if (delayString == null) {
-						delayString = '0';
-					}
-					
-					var delay = parseInt(delayString) * 60 * 1000;
-					
-					var dateParts = departureData.da.split('.');
-					var timeParts = departureData.ti.split(':');
+			var departures = response.connections.map(
+				function (x) {
+					var dateParts = x.mainLocation.date.split('.');
+					var timeParts = x.mainLocation.time.split(':');
 					var time = new Date(
 						parseInt(dateParts[2]) + 2000,
 						parseInt(dateParts[1]) - 1,
@@ -98,12 +76,34 @@ stationboard = (function () {
 					
 					var scheduled = time.getTime();
 					
+					if (x.mainLocation.realTime.hasRealTime) {
+						var delay = parseInt(x.mainLocation.realTime.delay) * 60 * 1000;
+					} else {
+						var delay = false;
+					}	
+					
+					var lastLocation = x.locations[x.locations.length - 1];
+					
+					// Identifies a departure at a specific station. Used to track data associated with a departure.
+					var idData = [
+						x.product.name,
+						x.product.direction,
+						x.mainLocation.time,
+						x.mainLocation.date
+					]
+					
+					var line = x.product.line;
+					
+					if (line == null) {
+						line = x.product.name;
+					}
+					
 					return {
-						'id': departureData.id,
-						'trainID': departureData.trainid,
-						'station': data.stationName,
-						'product': departureData.pr,
-						'direction': departureData.st,
+						'id': JSON.stringify(idData),
+						'trainID': x.trainInfo,
+						'station': x.mainLocation.location.name,
+						'product': line,
+						'direction': x.product.direction,
 						'scheduled': scheduled,
 						'estimated': scheduled + delay };
 				});
