@@ -266,7 +266,7 @@ $(function () {
 		}
 		
 		if (data.length == 0) {
-			var noDeparturesCell = createElement('td', '', ['Keine relevanten Abfahrten in der nächsten Stunde.']);
+			var noDeparturesCell = createElement('td', '', ['Keine Abfahrten in den nächsten 2 Stunden.']);
 			
 			noDeparturesCell.attr('colspan', 3);
 			
@@ -320,8 +320,10 @@ $(function () {
 		return rowElements;
 	};
 	
-	function subscribeStationBoard(stationID, refreshInterval, handleUpdatedData) {
+	function subscribeStationBoard(stationID, requestInterval, refreshInterval, handleUpdatedData) {
+		var mazQueriedResults = 1000;
 		var departureDataByID = { };
+		var resultCountHint = 10;
 		
 		function publishData() {
 			var res = [];
@@ -342,13 +344,15 @@ $(function () {
 			
 			stationboard.requestDepartures(
 				stationID,
+				Math.min(resultCountHint, mazQueriedResults),
 				function (departures) {
+					var limitTime = (new Date()).getTime() + requestInterval;
+					var resultsCount = departures.length;
+					var resultsWithinInterval = 0;
 					var newDepartureDataByID = { };
 					
 					departures.forEach(
 						function (departure) {
-							var data = departureDataByID[departure.id];
-							
 							function requestJourney() {
 								stationboard.requestJourney(
 									departure,
@@ -364,23 +368,42 @@ $(function () {
 									});
 							}
 							
-							if (data == null) {
-								data = {
-									'departure': departure,
-									'journey': null };
+							// Filter out departures that are too far in the future.
+							if (departure.scheduled < limitTime) {
+								var data = departureDataByID[departure.id];
 								
-								requestJourney();
-							} else {
-								data.departure = departure;
-							}
-							
-							newDepartureDataByID[departure.id] = data;
+								if (data == null) {
+									data = {
+										'departure': departure,
+										'journey': null };
+									
+									requestJourney();
+								} else {
+									data.departure = departure;
+								}
+								
+								resultsWithinInterval += 1;
+								newDepartureDataByID[departure.id] = data;
+							};
 						});
 					
 					departureDataByID = newDepartureDataByID;
 					
 					publishData();
-					scheduleRefresh();
+					
+					if (resultsWithinInterval < resultsCount) {
+						// More results than needed were returned. Use the number of results within the interval to calculate the new hint.
+						resultCountHint = resultsWithinInterval + 5;
+						scheduleRefresh();
+					} else if (resultsCount < resultCountHint) {
+						// Fewer results than requested were received. Use the number of returned results as the new hint.
+						resultCountHint = resultsCount + 5;
+						scheduleRefresh();
+					} else {
+						// More results within the interval may be returned if queried. Refresh immediately.
+						resultCountHint = resultsCount * 2;
+						refresh();
+					}
 				},
 				function (error) {
 					console.log(['Error getting departures.', stationID, error]);
@@ -391,7 +414,8 @@ $(function () {
 		refresh();
 	};
 	
-	var refreshInterval = 20000;
+	var refreshInterval = 20 * 1000;
+	var requestInterval = 2 * 60 * 60 * 1000;
 	
 	var tableRowElementsByStationID = { };
 	var filteredDataByStationID = { };
@@ -431,6 +455,7 @@ $(function () {
 		
 		subscribeStationBoard(
 			args.stationID,
+			requestInterval,
 			refreshInterval,
 			function (data) {
 				filteredData = data.filter(function (x) {
