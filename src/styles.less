@@ -222,12 +222,6 @@ table {
 		content: ' +';
 	}
 	
-	// For coloring according to remaining time.
-	span.abfahrt.knapp {
-		// Here we try to trick WebKit into rendering the number in their own layer, event when it should be drawn at full opacity.
-		opacity: .999999;
-	}
-	
 	tr.keine-abfahrten td {
 		opacity: .5;
 		padding-left: 2em;
@@ -238,8 +232,12 @@ table {
 }
 
 // For coloring according to remaining time.
-.blink-on span.abfahrt.knapp, span.abfahrt.verpasst {
-	opacity: .5;
+span.knapp {
+	color: #d60;
+}
+
+span.verpasst {
+	color: #888;
 }
 
 #footer {

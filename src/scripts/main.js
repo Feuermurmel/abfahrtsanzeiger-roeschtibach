@@ -523,13 +523,6 @@ $(function () {
 			$('#current-time').text(formatDate(new Date(), 'y-m-d H:M'));
 		});
 	
-	// Toggle blink class.
-	scheduleOnInterval(
-		800,
-		function () {
-			$('body').toggleClass('blink-on');
-		});
-	
 	function handleHashUpdate(value) {
 		var kiosk = value['kiosk'] != undefined;
 		
