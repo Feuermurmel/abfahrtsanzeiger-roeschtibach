@@ -362,7 +362,7 @@ $(function () {
 										publishData();
 									},
 									function (error) {
-										console.log(['Error getting journey data.', departure]);
+										console.log('Error getting journey data: ' + JSON.stringify(departure) + ': ' + JSON.stringify(error));
 										
 										requestJourney();
 									});
@@ -375,7 +375,8 @@ $(function () {
 								if (data == null) {
 									data = {
 										'departure': departure,
-										'journey': null };
+										'journey': null
+									};
 									
 									requestJourney();
 								} else {
