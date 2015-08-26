@@ -518,9 +518,9 @@ $(function () {
 	
 	// Update clock.
 	scheduleOnInterval(
-		1000,
+		60 * 1000,
 		function () {
-			$('#current-time').text(formatDate(new Date(), 'y-m-d H:M:S'));
+			$('#current-time').text(formatDate(new Date(), 'y-m-d H:M'));
 		});
 	
 	// Toggle blink class.
