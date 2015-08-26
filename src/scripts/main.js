@@ -415,7 +415,7 @@ $(function () {
 	};
 	
 	var refreshInterval = 20 * 1000;
-	var requestInterval = 2 * 60 * 60 * 1000;
+	var requestInterval = 5 * 60 * 60 * 1000;
 	
 	var tableRowElementsByStationID = { };
 	var filteredDataByStationID = { };
