@@ -63,7 +63,13 @@ stationboard = (function () {
 		};
 		
 		var handleSuccess = function (response) {
-			var departures = response.connections.map(
+			var connections = response.connections;
+			
+			if (connections == undefined) {
+				connections = [];
+			}
+			
+			var departures = connections.map(
 				function (x) {
 					var dateParts = x.mainLocation.date.split('.');
 					var timeParts = x.mainLocation.time.split(':');
