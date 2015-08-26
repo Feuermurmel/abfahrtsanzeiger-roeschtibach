@@ -450,7 +450,7 @@ $(function () {
 		
 		var filteredData = [];
 		
-		function udpateTable() {
+		function updateTable() {
 			tableBodyElement.empty().append(createRowElements(filteredData, args.remainingTime, args.travelTimeMinutes, args.knappTravelTimeMinutes));
 		}
 		
@@ -465,11 +465,11 @@ $(function () {
 					});
 				});
 				
-				udpateTable();
+				updateTable();
 			});
 		
 		// Run this on every full minute to update departure states and time remaining.
-		scheduleOnInterval(60 * 1000, udpateTable);
+		scheduleOnInterval(60 * 1000, updateTable);
 	}
 	
 	setupDepartureTable({
