@@ -540,4 +540,6 @@ $(function () {
 	
 	hash.addUpdateHandler(handleHashUpdate);
 	handleHashUpdate(hash.getCurrentValue());
+	
+	mtbf.setup($('#mtbf-days'));
 });

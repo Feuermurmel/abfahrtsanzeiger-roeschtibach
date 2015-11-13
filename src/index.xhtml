@@ -8,6 +8,7 @@
 		<script src="scripts/json2.js" />
 		<script src="scripts/stationboard.js" />
 		<script src="scripts/hash.js" />
+		<script src="scripts/mtbf.js" />
 		<script src="scripts/main.js" />
 	</head>
 	<body>
@@ -20,15 +21,18 @@
 					<table id="t2" />
 					<h3>Escher-Wyss-Platz (300 m)</h3>
 					<table id="t3" />
-					<p id="footer">
-						<span class="left">
-							<span class="knapp">knapp</span>
-							<span class="verpasst">verpasst</span>
-						</span>
-						<span class="right">
-							<span id="current-time" />
-						</span>
-					</p>
+					<div id="footer">
+						<p>
+							<span class="left">
+								<span class="knapp">knapp</span>
+								<span class="verpasst">verpasst</span>
+							</span>
+							<span class="right">
+								<span id="current-time" />
+							</span>
+						</p>
+						<p class="mtbf">Tage ohne Internet-Ausfall: <span id="mtbf-days">0</span></p>
+					</div>
 				</div>
 				<div>
 					<h3>Wipkingen (400 m)</h3>
