@@ -22,7 +22,7 @@ mtbf = (function () {
 			
 			var days = (now.getTime() - firstSuccess.getTime()) / (1000 * 3600);
 			
-			daysElem.text(days);
+			daysElem.text(Math.floor(days * 10) / 10);
 		}
 		
 		function handleFailure() {
