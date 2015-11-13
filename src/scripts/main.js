@@ -200,8 +200,8 @@ $(function () {
 			[/^Zürich,? /, ''],
 			[/^Bahnhof /, ''],
 			[/^(Schmiede W)iedikon$/, '$1.'],
-			[/(Regensdorf|Opfikon|Tagelswangen|Unterengstringen), .*/, '$1'],
-			[/^Herrliberg-Feldmeilen$/, 'Herrliberg-Feldm.']])
+			[/^(Regensdorf|Opfikon|Tagelswangen|Unterengstringen), .*$/, '$1'],
+			[/^(Herrliberg-Feldm)eilen$/, '$1.']])
 	
 	var fixProductName = createReplacementFunction(
 		[
