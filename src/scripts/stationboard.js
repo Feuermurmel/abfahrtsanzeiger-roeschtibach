@@ -41,10 +41,11 @@ stationboard = (function () {
 		
 		requestQueue.push(function () {
 			$.ajax({
-				'url': getEndpoint() + fragment,
-				'data': data,
-				'success': wrapCompletionFunction(success, 200),
-				'error': wrapCompletionFunction(failure, 5000) });
+				url: getEndpoint() + fragment,
+				data: data,
+				cache: false,
+				success: wrapCompletionFunction(success, 200),
+				error: wrapCompletionFunction(failure, 5000) });
 		});
 		
 		processQueue();
@@ -136,6 +137,8 @@ stationboard = (function () {
 	}
 	
 	return {
-		'requestDepartures': requestDepartures,
-		'requestJourney': requestJourney };
+		queueRequest: queueRequest,
+		requestDepartures: requestDepartures,
+		requestJourney: requestJourney
+	};
 })();
