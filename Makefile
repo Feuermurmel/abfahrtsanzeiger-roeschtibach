@@ -1,19 +1,19 @@
-COMPILED_CSS_FILES := $(patsubst src/%.less,out/%.css,$(shell find src -name '*.less'))
-COPIED_FILES := $(patsubst src/%,out/%,$(shell find src -type f -not -name '.*'))
+SRC_FILES := $(shell find src -not \( \( -name '.*' -or -name '* *' \) -prune \) -type f)
+select = $(patsubst src/$1,out/$2,$(filter src/$1,$(SRC_FILES)))
 
-.PHONY: clean all deploy
+COMPILED_CSS_FILES := $(call select,%.less,%.css)
+COPIED_FILES := $(call select,%,%)
+
+.PHONY: clean all
 
 all: $(COMPILED_CSS_FILES) $(COPIED_FILES)
 
 clean:
 	rm -rf out deploy
 
-deploy:
-	./deploy.sh
-
-out/%.css: out/%.less
+$(COMPILED_CSS_FILES): out/%.css: out/%.less
 	lessc --source-map $< $@
 
 $(COPIED_FILES): out/%: src/%
-	@ mkdir -p $$(dirname $@)
+	@ mkdir -p $(@D)
 	cp $< $@
