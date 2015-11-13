@@ -273,48 +273,54 @@ $(function () {
 			rowElements.push(createElement('tr', 'keine-abfahrten', [noDeparturesCell]));
 		} else {
 			var departuresByProductNameDirection = mapValues(
-				groupBy(data, function (x) {
-					return fixProductName(x.departure.product);
-				}),
+				groupBy(
+					data,
+					function (x) {
+						return fixProductName(x.departure.product);
+					}),
 				function (x) {
 					return mapValues(
-						groupBy(x, function (x) {
-							return x.departure.direction;
-						}),
-						function (x) {
-							return sortBy(x, function (x) {
-								return x.departure.scheduled;
-							});
+						groupBy(
+							x,
+							function (y) {
+								return y.departure.direction;
+							}),
+						function (y) {
+							return sortBy(
+								y,
+								function (z) {
+									return z.departure.scheduled;
+								});
 						});
 				});
 				
-				var departuresAtStation = [];
-				
-				// Gather all groups of departures at this station in a flat list.
-				$.each(
-					departuresByProductNameDirection,
-					function (productName, departuresByDirection) {
-						$.each(
-							departuresByDirection,
-							function (direction, departures) {
-								departuresAtStation.push(departures)
-							});
-					});
-				
-				departuresAtStation = sortBy(
-					departuresAtStation,
-					[
-						function (x) { return x[0].departure.estimated; },
-						function (x) { return x[0].departure.product; },
-						function (x) { return x[0].departure.direction; }]);
-				
-				departuresAtStation.forEach(
-					function (departures) {
-						var product = departures[0].departure.product;
-						var direction = departures[0].departure.direction;
-						
-						addRow(product, direction, departures);
-					});
+			var departuresAtStation = [];
+			
+			// Gather all groups of departures at this station in a flat list.
+			$.each(
+				departuresByProductNameDirection,
+				function (productName, departuresByDirection) {
+					$.each(
+						departuresByDirection,
+						function (direction, departures) {
+							departuresAtStation.push(departures)
+						});
+				});
+			
+			departuresAtStation = sortBy(
+				departuresAtStation,
+				[
+					function (x) { return x[0].departure.estimated; },
+					function (x) { return x[0].departure.product; },
+					function (x) { return x[0].departure.direction; }]);
+			
+			departuresAtStation.forEach(
+				function (departures) {
+					var product = departures[0].departure.product;
+					var direction = departures[0].departure.direction;
+					
+					addRow(product, direction, departures);
+				});
 		}
 		
 		return rowElements;
