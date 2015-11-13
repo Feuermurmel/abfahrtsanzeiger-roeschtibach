@@ -321,7 +321,7 @@ $(function () {
 	};
 	
 	function subscribeStationBoard(stationID, requestInterval, refreshInterval, handleUpdatedData) {
-		var mazQueriedResults = 1000;
+		var maxQueriedResults = 1000;
 		var departureDataByID = { };
 		var resultCountHint = 10;
 		
@@ -344,7 +344,7 @@ $(function () {
 			
 			stationboard.requestDepartures(
 				stationID,
-				Math.min(resultCountHint, mazQueriedResults),
+				Math.min(resultCountHint, maxQueriedResults),
 				function (departures) {
 					var limitTime = (new Date()).getTime() + requestInterval;
 					var resultsCount = departures.length;
