@@ -198,6 +198,7 @@ $(function () {
 			[/ N$/, ''],
 			[/ \(SBB\)$/, ''],
 			[/^Zürich,? /, ''],
+			[/^HB$/, 'Zürich HB'],
 			[/^Bahnhof /, ''],
 			[/^(Schmiede W)iedikon$/, '$1.'],
 			[/^(Regensdorf|Opfikon|Tagelswangen|Unterengstringen), .*$/, '$1'],
