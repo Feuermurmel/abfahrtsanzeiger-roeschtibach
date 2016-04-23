@@ -1,4 +1,12 @@
-.no-internet {
+body[data-internet="false"] .content {
+	display: none;
+}
+
+body[data-internet="true"] .internet {
+	display: none;
+}
+
+.internet {
 	.derpy {
 		position: fixed;
 		left: 0em;

@@ -542,7 +542,7 @@ main = (function () {
 		hash.addUpdateHandler(handleHashUpdate);
 		handleHashUpdate(hash.getCurrentValue());
 	
-		mtbf.setup($('#mtbf-days'));
+		internet.setup();
 	};
 	
 	return m;
