@@ -417,7 +417,7 @@ main = (function () {
 					}
 				},
 				function (error) {
-					console.log(['Error getting departures.', stationID, error]);
+					console.log('Error getting departures for station ' + stationID + ': ' + JSON.stringify(error));
 					scheduleRefresh();
 				});
 		}
