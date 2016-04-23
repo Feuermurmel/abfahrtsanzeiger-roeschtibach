@@ -536,9 +536,7 @@ main = (function () {
 			});
 		
 		function handleHashUpdate(value) {
-			var kiosk = value['kiosk'] != undefined;
-			
-			$('body').toggleClass('kiosk', kiosk);
+			$('body').attr('data-kiosk', value['kiosk'] != undefined);
 		}
 		
 		hash.addUpdateHandler(handleHashUpdate);
