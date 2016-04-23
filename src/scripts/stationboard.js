@@ -1,6 +1,7 @@
 stationboard = (function () {
 	'use strict';
 	
+	var m = { }
 	var requestQueue = [];
 	var requestRunning = false;
 	
@@ -10,9 +11,9 @@ stationboard = (function () {
 		} else {
 			return 'http://online.fahrplan.zvv.ch'
 		}
-	}
+	};
 	
-	function queueRequest(fragment, data, success, failure) {
+	m.queueRequest = function (fragment, data, success, failure) {
 		var processQueue = function () {
 			if (!requestRunning) {
 				var nextRequest = requestQueue.shift();
@@ -51,7 +52,7 @@ stationboard = (function () {
 		processQueue();
 	}
 	
-	var requestDepartures = function (stationName, maxResults, success, failure) {
+	m.requestDepartures = function (stationName, maxResults, success, failure) {
 		var fragment = '/bin/stboard.exe/dny'
 		
 		var data = {
@@ -118,10 +119,10 @@ stationboard = (function () {
 			success(departures);
 		}
 		
-		queueRequest(fragment, data, handleSuccess, failure);
+		m.queueRequest(fragment, data, handleSuccess, failure);
 	}
 	
-	var requestJourney = function (departure, success, failure) {
+	m.requestJourney = function (departure, success, failure) {
 		var fragment = '/bin/traininfo.exe/dly/' + departure.trainID;
 		
 		var handleSuccess = function (response) {
@@ -133,12 +134,8 @@ stationboard = (function () {
 					}));
 		}
 		
-		queueRequest(fragment, { }, handleSuccess, failure);
+		m.queueRequest(fragment, { }, handleSuccess, failure);
 	}
 	
-	return {
-		queueRequest: queueRequest,
-		requestDepartures: requestDepartures,
-		requestJourney: requestJourney
-	};
+	return m;
 })();

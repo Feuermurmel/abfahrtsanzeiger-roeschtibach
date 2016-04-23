@@ -1,6 +1,8 @@
 hash = (function () {
 	'use strict';
 	
+	var m = { }
+	
 	function computeCurrentValue() {
 		var parts = window.location.hash.split('#');
 		
@@ -28,12 +30,13 @@ hash = (function () {
 		})
 	});
 	
-	function addUpdateHandler(handler) {
+	m.addUpdateHandler = function (handler) {
 		updateHandlers.push(handler);
 	}
 	
-	return {
-		'getCurrentValue': function () { return currentValue; },
-		'addUpdateHandler': addUpdateHandler
+	m.getCurrentValue = function () {
+		return currentValue;
 	}
-})()
+	
+	return m;
+})();

@@ -1,9 +1,10 @@
 mtbf = (function () {
 	'use strict';
 	
+	var m = { };
 	var interval = 60 * 1000;
 	
-	function setup(daysElem) {
+	m.setup = function (daysElem) {
 		daysElem = $(daysElem);
 		
 		var firstSuccess = null;
@@ -45,7 +46,5 @@ mtbf = (function () {
 		startRequest();
 	}
 	
-	return {
-		setup: setup
-	};
+	return m;
 })();

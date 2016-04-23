@@ -1,5 +1,7 @@
-$(function () {
+main = (function () {
 	'use strict';
+	
+	var m = { };
 	
 	var sortBy = function (list, keyFunctions) {
 		if (keyFunctions == null) {
@@ -480,66 +482,70 @@ $(function () {
 		scheduleOnInterval(60 * 1000, updateTable);
 	}
 	
-	setupDepartureTable({
-		element: $('#t1'),
-		stationID: 'Zürich, Rosengartenstrasse',
-		journeyExclusions: [],
-		remainingTime: true,
-		travelTimeMinutes: 5,
-		knappTravelTimeMinutes: 2
-	});
-	
-	setupDepartureTable({
-		element: $('#t2'),
-		stationID: 'Zürich, Wipkingerplatz',
-		journeyExclusions: [],
-		remainingTime: true,
-		travelTimeMinutes: 5,
-		knappTravelTimeMinutes: 2
-	});
-	
-	setupDepartureTable({
-		element: $('#t3'),
-		stationID: 'Zürich, Escher-Wyss-Platz',
-		journeyExclusions: ['Zürich, Rosengartenstrasse', 'Zürich, Wipkingerplatz'],
-		remainingTime: true,
-		travelTimeMinutes: 8,
-		knappTravelTimeMinutes: 4
-	});
-	
-	setupDepartureTable({
-		element: $('#t4'),
-		stationID: 'Zürich Wipkingen (SBB)',
-		journeyExclusions: ['Zürich, Rosengartenstrasse'],
-		remainingTime: false,
-		travelTimeMinutes: 8,
-		knappTravelTimeMinutes: 4
-	});
-	
-	setupDepartureTable({
-		element: $('#t5'),
-		stationID: 'Zürich Hardbrücke (SBB)',
-		journeyExclusions: ['Zürich, Escher-Wyss-Platz'],
-		remainingTime: false,
-		travelTimeMinutes: 16,
-		knappTravelTimeMinutes: 11
-	});
-	
-	// Update clock.
-	scheduleOnInterval(
-		60 * 1000,
-		function () {
-			$('#current-time').text(formatDate(new Date(), 'y-m-d H:M'));
+	m.setup = function () {
+		setupDepartureTable({
+			element: $('#t1'),
+			stationID: 'Zürich, Rosengartenstrasse',
+			journeyExclusions: [],
+			remainingTime: true,
+			travelTimeMinutes: 5,
+			knappTravelTimeMinutes: 2
 		});
-	
-	function handleHashUpdate(value) {
-		var kiosk = value['kiosk'] != undefined;
 		
-		$('body').toggleClass('kiosk', kiosk);
-	}
+		setupDepartureTable({
+			element: $('#t2'),
+			stationID: 'Zürich, Wipkingerplatz',
+			journeyExclusions: [],
+			remainingTime: true,
+			travelTimeMinutes: 5,
+			knappTravelTimeMinutes: 2
+		});
+		
+		setupDepartureTable({
+			element: $('#t3'),
+			stationID: 'Zürich, Escher-Wyss-Platz',
+			journeyExclusions: ['Zürich, Rosengartenstrasse', 'Zürich, Wipkingerplatz'],
+			remainingTime: true,
+			travelTimeMinutes: 8,
+			knappTravelTimeMinutes: 4
+		});
+		
+		setupDepartureTable({
+			element: $('#t4'),
+			stationID: 'Zürich Wipkingen (SBB)',
+			journeyExclusions: ['Zürich, Rosengartenstrasse'],
+			remainingTime: false,
+			travelTimeMinutes: 8,
+			knappTravelTimeMinutes: 4
+		});
+		
+		setupDepartureTable({
+			element: $('#t5'),
+			stationID: 'Zürich Hardbrücke (SBB)',
+			journeyExclusions: ['Zürich, Escher-Wyss-Platz'],
+			remainingTime: false,
+			travelTimeMinutes: 16,
+			knappTravelTimeMinutes: 11
+		});
+		
+		// Update clock.
+		scheduleOnInterval(
+			60 * 1000,
+			function () {
+				$('#current-time').text(formatDate(new Date(), 'y-m-d H:M'));
+			});
+		
+		function handleHashUpdate(value) {
+			var kiosk = value['kiosk'] != undefined;
+			
+			$('body').toggleClass('kiosk', kiosk);
+		}
+		
+		hash.addUpdateHandler(handleHashUpdate);
+		handleHashUpdate(hash.getCurrentValue());
 	
-	hash.addUpdateHandler(handleHashUpdate);
-	handleHashUpdate(hash.getCurrentValue());
+		mtbf.setup($('#mtbf-days'));
+	};
 	
-	mtbf.setup($('#mtbf-days'));
-});
+	return m;
+})();
