@@ -4,15 +4,22 @@ select = $(patsubst src/$1,out/$2,$(filter src/$1,$(SRC_FILES)))
 COMPILED_CSS_FILES := $(call select,%.less,%.css)
 COPIED_FILES := $(call select,%,%)
 
-.PHONY: clean all
+.PHONY: clean env all
 
-all: $(COMPILED_CSS_FILES) $(COPIED_FILES)
+all: $(COMPILED_CSS_FILES) $(COPIED_FILES) node_modules/.sentinel
+
+env: node_modules/.sentinel
+
+node_modules/.sentinel: package.json
+	rm -rf $(@D)
+	npm install
+	touch $@
 
 clean:
-	rm -rf out deploy
+	rm -rf out
 
-$(COMPILED_CSS_FILES): out/%.css: out/%.less
-	lessc --source-map $< $@
+$(COMPILED_CSS_FILES): out/%.css: out/%.less env
+	npm run lessc --source-map $< $@
 
 $(COPIED_FILES): out/%: src/%
 	@ mkdir -p $(@D)
